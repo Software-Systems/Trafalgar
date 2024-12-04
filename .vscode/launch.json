@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Trafalgar Sandbox DEV19",
+            "request": "launch",
+            "type": "al",
+            "environmentType": "Sandbox",
+            "environmentName": "DEV19",
+            "breakOnError": "All",
+            "startupObjectType": "Page",
+            "startupObjectId":  22,
+            "launchBrowser": true,
+            "enableLongRunningSqlStatements": true,
+            "enableSqlInformationDebugger": true,
+            "tenant":"1949af70-dfa8-4f47-8d72-f0df75f3efb3",
+            "schemaUpdateMode": "ForceSync"
+        }
+    ]
+}

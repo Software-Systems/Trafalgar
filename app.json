@@ -1,0 +1,39 @@
+{
+  "id": "306046f4-32b0-45ba-8e35-cd69c4edbfe5",
+  "name": "Trafalgar_Customization",
+  "publisher": "Software Systems",
+  "version": "1.0.0.67",
+  "brief": "",
+  "description": "",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [
+    {
+      "id": "a2827593-d857-4c13-b95d-f02596746679",
+      "name": "SmallChanges",
+      "version": "1.0.0.11",
+      "publisher": "Software Systems"
+    }
+  ],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "24.0.0.0",
+  "idRanges": [
+    {
+      "from": 50000,
+      "to": 99999
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
+  },
+  "runtime": "13.0",
+  "features": [
+    "NoImplicitWith"
+  ]
+}

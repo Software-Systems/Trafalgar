@@ -1,0 +1,26 @@
+{
+	"folders": [
+        {
+            "path": "."
+        }
+    ],
+	"settings": {
+	    "al.enableCodeActions": true,
+        "al.enableCodeAnalysis": true,
+        "al.backgroundCodeAnalysis": true,
+        "al.codeAnalyzers": [
+            "${CodeCop}",
+            "${UICop}",
+            "${PerTenantExtensionCop}",
+            "${analyzerFolder}BusinessCentral.LinterCop.dll"
+        ],
+        "alOutline.completionProviders": ["VariableNamesWithType", "VariableDataTypes"],
+        "alOutline.defaultRemoveEmptyTriggersSettings": {        
+        },
+        "al.compilationOptions": {
+            "parallel": true
+        },
+        "CRS.OnSaveAlFileAction": "Reorganize",
+        "al.showHomeAtStartup": "Always"
+    },
+}
