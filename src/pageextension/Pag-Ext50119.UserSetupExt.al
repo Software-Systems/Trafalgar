@@ -19,6 +19,11 @@ pageextension 50119 PagExtUserSetup extends "User Setup"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Can Change Account Customer field.', Comment = '%';
             }
+            field("Can Release Order for Overdue"; Rec."Can Release Order for Overdue")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Can Release Order for Overdue Cust Entries field.', Comment = '%';
+            }
         }
     }
 }

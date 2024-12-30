@@ -2,14 +2,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Trafalgar Sandbox DEV19",
+            "name": "Trafalgar Sandbox DEV",
             "request": "launch",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "DEV19",
+            "environmentName": "DEV21",
             "breakOnError": "All",
             "startupObjectType": "Page",
-            "startupObjectId":  22,
+            "startupObjectId":  9305,
             "launchBrowser": true,
             "enableLongRunningSqlStatements": true,
             "enableSqlInformationDebugger": true,

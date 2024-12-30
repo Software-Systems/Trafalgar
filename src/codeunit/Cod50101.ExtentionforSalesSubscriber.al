@@ -16,7 +16,7 @@ codeunit 50101 "Extention for Sales Subscriber"
                 if Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order" then begin
                     ProductionOrder.SetRange("Sales Order No.", SalesLine."Document No.");
                     ProductionOrder.SetRange("Sales Order Line No.", SalesLine."Line No.");
-                    ProductionOrder.SetRange(Status, ProductionOrder.Status::Planned);
+                    // ProductionOrder.SetRange(Status, ProductionOrder.Status::Planned);
                     if ProductionOrder.IsEmpty then
                         Message(NotAllowedErr);
                 end;
@@ -103,9 +103,14 @@ codeunit 50101 "Extention for Sales Subscriber"
         InvoiceDiscountPCT: Decimal;
         VATAMount: Decimal;
         NotAllowedtoRelease: Label 'The payment amount must be equal to the order amount, and the payment processed must be true.';
+        //SG Start
+        ExceededOverdueEntries: Label 'This Customer Has Overdue Entries, Or Is Over Their Credit Limit. This Order Cannot Be Released';
+        ConfirmationOverdueEntries: Label 'This Customer Has Overdue Entries, Or Is Over Their Credit Limit. Do You Still Want to Release This Order ?';
+        Customer: Record Customer;
+        OverDueBalance: Decimal;
     begin
         if UserSetup.Get(UserId) then begin
-            if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
                 if not UserSetup."Can Always Release CIA orders" then begin
                     SalesLine.SetRange("Document No.", SalesHeader."No.");
                     SalesLine.SetRange(Type, SalesLine.Type::Item);
@@ -115,6 +120,25 @@ codeunit 50101 "Extention for Sales Subscriber"
                         if (SalesHeader."Amount Paid" <> SalesLine."Amount Including VAT") or (SalesHeader."Payment Processed" = false) then
                             Error(NotAllowedtoRelease);
                 end;
+
+                if Customer.Get(SalesHeader."Bill-to Customer No.") then
+                    OverDueBalance := Customer.CalcOverdueBalance();
+
+                if OverDueBalance > 0 then begin
+                    if not UserSetup."Can Release Order for Overdue" then
+                        if not Confirm('This customer has an overdue balance, do you want to continue?') then begin
+                            Error(ExceededOverdueEntries);
+                        end
+                        else begin
+                            //User Has Authority To Release
+                            if Confirm(ConfirmationOverdueEntries) then begin
+                                //Sales Order Released
+                            end
+                            else
+                                Error('%1 Still Remains In Open Status.', SalesHeader."No.")
+                        end;
+                end;
+            end;
         end;
         CheckForPlannedProductionOrders(SalesHeader, SalesLine);
     end;
@@ -150,13 +174,13 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterLookupShipToPostCode, '', true, true)]
-    local procedure OnAfterValidate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
+    local procedure SalesHeader_OnAfterLookupShipToPostCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     begin
         UpdateWarehouseLocation(SalesHeader, xSalesHeader);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs, '', true, true)]
-    local procedure OnValidateSellTo(var Cust: Record Customer; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
+    local procedure SalesHeader_OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(var Cust: Record Customer; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
         if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Order) or
         (SalesHeader."Document Type" <> SalesHeader."Document Type"::Quote) then begin
@@ -168,7 +192,7 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnValidateBillToCustomerNoOnBeforeCheckBlockedCustOnDocs, '', true, true)]
-    local procedure OnValidateBilTo(var Cust: Record Customer; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
+    local procedure SalesHeader_OnValidateBillToCustomerNoOnBeforeCheckBlockedCustOnDocs(var Cust: Record Customer; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
         if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Order) or
         (SalesHeader."Document Type" <> SalesHeader."Document Type"::Quote) then begin
@@ -180,7 +204,7 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Customer, OnBeforeCheckBlockedCust, '', true, true)]
-    local procedure MyProcedure(Customer: Record Customer; Source: Option; var IsHandled: Boolean)
+    local procedure Customer_OnBeforeCheckBlockedCust(Customer: Record Customer; Source: Option; var IsHandled: Boolean)
     begin
         if Source = 1 then
             if (Customer.Blocked = Customer.Blocked::Ship) or (Customer.Blocked = Customer.Blocked::" ") then
@@ -190,7 +214,7 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Customer, OnBeforeGetCustNoOpenCard, '', true, true)]
-    local procedure SkipCustomerCreationMessage(CustomerText: Text; var ShowCreateCustomerOption: Boolean; var IsHandled: Boolean; var CustomerNo: Code[20])
+    local procedure Customer_OnBeforeGetCustNoOpenCard(CustomerText: Text; var ShowCreateCustomerOption: Boolean; var IsHandled: Boolean; var CustomerNo: Code[20])
     var
         Customer: Record Customer;
         Found: Boolean;
@@ -218,7 +242,7 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterOnInsert, '', true, true)]
-    local procedure OnValidateSellTOCustomer(var SalesHeader: Record "Sales Header")
+    local procedure SalesHeader_OnAfterOnInsert(var SalesHeader: Record "Sales Header")
     var
         PostCode: Record "Post Code";
         salesLine: Record "Sales Line";
@@ -250,7 +274,7 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification, '', true, true)]
-    local procedure OnAfterValidateCustomer(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
+    local procedure SalesHeader_OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     var
         PostCode: Record "Post Code";
         salesLine: Record "Sales Line";
@@ -282,7 +306,7 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterValidateEvent, "Sell-to Customer No.", true, true)]
-    local procedure OnAfterValid(var Rec: Record "Sales Header")
+    local procedure SalesHeader_OnAfterValidateEvent_SellToCustomerNo(var Rec: Record "Sales Header")
     var
         Customer: Record Customer;
     begin
@@ -299,8 +323,7 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterInsertEvent, '', false, false)]
-    local procedure OnAfterInsertSalesheader(var Rec: Record "Sales Header")
-
+    local procedure SalesHeader_OnAfterInsertEvent(var Rec: Record "Sales Header")
     begin
         if Rec."Document Type" = Rec."Document Type"::Quote then begin
             Rec."Quote Valid Until Date" := CalcDate('+30D', Today)
@@ -330,10 +353,40 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterValidateEvent, "No.", true, true)]
-    local procedure OnAfterValidateEventNO(var Rec: Record "Sales Header")
+    local procedure SalesHeader_OnAfterValidateEvent_No(var Rec: Record "Sales Header")
     begin
         if Rec."Document Type" = Rec."Document Type"::Quote then begin
             Rec."Quote Valid Until Date" := CalcDate('+30D', Today)
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, "Qty. To Ship", true, true)]
+    local procedure SalesLine_OnAfterValidateEvent_QtyToShip(var Rec: Record "Sales Line")
+    begin
+        if Rec."Document Type" IN [Rec."Document Type"::Quote, Rec."Document Type"::Order] then begin
+            if Rec.Type = Rec.Type::Item then
+                if Rec."Qty. to Ship (Base)" > Rec.GetInStockQuantity() then
+                    Message('You Do Not Have Enough Stock For Item %1 - %2', Rec."No.", Rec."Product Code");
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Order", OnBeforeModifySalesOrderHeader, '', false, false)]
+    procedure SalesQuoteToOrder_OnBeforeModifySalesOrderHeader(SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
+    begin
+        if SalesQuoteHeader."Shipment Date" < Today then begin
+            if Confirm('Do you want to update the Shipment Date ?') then
+                SalesOrderHeader."Shipment Date" := TODAY;
+        end;
+
+        if SalesQuoteHeader."Requested Delivery Date" < Today then begin
+            if Confirm('Do you want to update the Delivery Date ?') then
+                SalesOrderHeader."Requested Delivery Date" := TODAY;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Mgt.", OnAfterCalculateShipBillToOptions, '', false, false)]
+    procedure CustomerMgt_OnAfterCalculateShipBillToOptions(var ShipToOptions: Enum "Sales Ship-to Options")
+    begin
+        ShipToOptions := ShipToOptions::"Custom Address";
     end;
 }

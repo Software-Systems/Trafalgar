@@ -158,6 +158,9 @@ report 50100 "Trafalgar - Remittance Advice"
             dataitem("Gen. Journal Line"; "Gen. Journal Line")
             {
                 DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.") where("Account Type" = const(Vendor));
+                column(PaymentDate; "Posting Date")
+                {
+                }
                 column(CheckNo; CheckNo)
                 {
                 }

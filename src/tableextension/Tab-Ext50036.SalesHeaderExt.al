@@ -73,4 +73,30 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         Documents := GenLedSetup."SharePoint Document Path" + '' + "No.";
         Modify();
     end;
+
+    procedure CheckInStockQuantity() RetValue: Text
+    var
+        SalesLine: Record "Sales Line";
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        Clear(RetValue);
+        SalesLine.Reset;
+        SalesLine.Setrange(SalesLine."Document Type", Rec."Document Type");
+        SalesLine.Setrange(SalesLine."Document No.", Rec."No.");
+        SalesLine.Setrange(SalesLine.Type, SalesLine.Type::Item);
+        SalesLine.SetFilter(SalesLine."Product Code", '<> %1', 'DELIVERY');
+        if SalesLine.findset then
+            repeat
+                if SalesLine."Qty. to Ship (Base)" > SalesLine.GetInStockQuantity() then begin
+                    if RetValue <> '' then
+                        RetValue := RetValue + TypeHelper.CRLFSeparator();
+
+                    RetValue := RetValue + 'Item ' + SalesLine."No." + ' - ' + SalesLine."Product Code" +
+                    ' (Line : ' + Format(SalesLine."Line No.") + ')';
+                end;
+            until SalesLine.Next() = 0;
+        if RetValue <> '' then
+            RetValue := 'Not Enough Stock For Item Below : ' + TypeHelper.CRLFSeparator() + TypeHelper.CRLFSeparator() + RetValue;
+        exit(RetValue);
+    end;
 }

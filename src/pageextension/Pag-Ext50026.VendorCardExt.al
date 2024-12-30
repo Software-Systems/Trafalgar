@@ -7,12 +7,24 @@ pageextension 50026 PagExtVendorCard extends "Vendor Card"
         {
             ShowMandatory = true;
         }
+        addafter("E-Mail")
+        {
+            field("Account Manager E-Mail"; Rec."Account Manager E-Mail")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Account Manager E-Mail field.', Comment = '%';
+            }
+            field("Account E-Mail"; Rec."Account E-Mail")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Account E-Mail field.', Comment = '%';
+            }
+        }
     }
 
     actions
     {
         // Add changes to page actions here
-        //addafter("Item References")
         addafter(PayVendor)
         {
             action(HistoricalPurchases)

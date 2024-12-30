@@ -146,4 +146,15 @@ pageextension 50041 PagExtSalesQuote extends "Sales Quote"
             exit(true);
         exit(false);
     end;
+
+    trigger OnAfterGetRecord()
+    begin
+        NoStockMessage := Rec.CheckInStockQuantity;
+        if Rec."No." <> xRec."No." then
+            if NoStockMessage <> '' then
+                Message('%1', NoStockMessage);
+    end;
+
+    var
+        NoStockMessage: Text;
 }

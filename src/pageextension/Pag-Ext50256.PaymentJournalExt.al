@@ -1,5 +1,6 @@
 pageextension 50256 PagExtPaymentJournal extends "Payment Journal"
 {
+
     actions
     {
         // Add changes to page actions here

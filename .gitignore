@@ -1,2 +1,7 @@
-.alpackages/
-.vscode/.alcache/
+# app cache
+/.alpackages/
+/.vscode/.alcache/*
+*.app
+/.vscode/launch.json
+/.vscode/rad.json
+*.gitignore

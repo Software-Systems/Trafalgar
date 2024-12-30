@@ -49,6 +49,20 @@ pageextension 50021 PagExtCustomerCard extends "Customer Card"
                 MultiLine = true;
                 ApplicationArea = all;
             }
+
+        }
+        addafter("E-Mail")
+        {
+            field("Buyer Email Address"; Rec."Buyer Email Address")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Buyer E-Mail Address field.', Comment = '%';
+            }
+            field("Accounts E-Mail"; Rec."Accounts Email Address")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Account E-Mail field.', Comment = '%';
+            }
         }
     }
 

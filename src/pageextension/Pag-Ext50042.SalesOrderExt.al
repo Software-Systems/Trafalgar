@@ -351,6 +351,7 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
     var
         UserSetup: Record "User Setup";
         AmountEdit: Boolean;
+        NoStockMessage: Text;
 
     trigger OnAfterGetRecord()
     begin
@@ -361,5 +362,10 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
         UserSetup.Get(UserId);
         if UserSetup."Can Reprocess Payment" then
             AmountEdit := true;
+
+        NoStockMessage := Rec.CheckInStockQuantity;
+        if Rec."No." <> xRec."No." then
+            if NoStockMessage <> '' then
+                Message('%1', NoStockMessage);
     end;
 }

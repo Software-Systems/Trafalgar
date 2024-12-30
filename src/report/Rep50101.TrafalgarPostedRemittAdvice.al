@@ -134,6 +134,9 @@ report 50101 "Trafalgar Posted Remitt Advice"
             column(DocumentDateCaption; DocDateCaptionLbl)
             {
             }
+            column(PaymentDate; "Posting Date")
+            {
+            }
             column(PostingDateCaption; PostingDateCaptionLbl) { }
             dataitem(VendLedgEntry2; "Vendor Ledger Entry")
             {
