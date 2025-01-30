@@ -14,6 +14,11 @@ pageextension 50041 PagExtSalesQuote extends "Sales Quote"
                 ToolTip = 'Specifies the value of the Quote Created By field.', Comment = '%';
                 Editable = false;
             }
+            field("Quote Reason Code"; Rec."Quote Reason Code")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Quote Reason Code field.', Comment = '%';
+            }
         }
     }
     actions

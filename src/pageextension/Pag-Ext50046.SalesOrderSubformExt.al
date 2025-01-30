@@ -28,5 +28,7 @@ pageextension 50046 PagExtSalesOrderSubform extends "Sales Order Subform"
             Editable = true;
             Visible = true;
         }
+
+
     }
 }

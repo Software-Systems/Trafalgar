@@ -64,6 +64,10 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
             OptionMembers = "",Cash,"Credit Refund";
             DataClassification = CustomerContent;
         }
+        field(50111; "Quote Reason Code"; Enum "Sales Quote Reason")
+        {
+            DataClassification = CustomerContent;
+        }
     }
     trigger OnAfterInsert()
     var
@@ -77,6 +81,7 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
     procedure CheckInStockQuantity() RetValue: Text
     var
         SalesLine: Record "Sales Line";
+        Item: Record Item;
         TypeHelper: Codeunit "Type Helper";
     begin
         Clear(RetValue);
@@ -87,12 +92,15 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         SalesLine.SetFilter(SalesLine."Product Code", '<> %1', 'DELIVERY');
         if SalesLine.findset then
             repeat
-                if SalesLine."Qty. to Ship (Base)" > SalesLine.GetInStockQuantity() then begin
-                    if RetValue <> '' then
-                        RetValue := RetValue + TypeHelper.CRLFSeparator();
+                if Item.Get(SalesLine."No.") then begin
+                    if Item."Manufacturing Policy" <> Item."Manufacturing Policy"::"Make-to-Order" then
+                        if SalesLine."Qty. to Ship (Base)" > SalesLine.GetInStockQuantity() then begin
+                            if RetValue <> '' then
+                                RetValue := RetValue + TypeHelper.CRLFSeparator();
 
-                    RetValue := RetValue + 'Item ' + SalesLine."No." + ' - ' + SalesLine."Product Code" +
-                    ' (Line : ' + Format(SalesLine."Line No.") + ')';
+                            RetValue := RetValue + 'Item ' + SalesLine."No." + ' - ' + SalesLine."Product Code" +
+                            ' (Line : ' + Format(SalesLine."Line No.") + ')';
+                        end;
                 end;
             until SalesLine.Next() = 0;
         if RetValue <> '' then

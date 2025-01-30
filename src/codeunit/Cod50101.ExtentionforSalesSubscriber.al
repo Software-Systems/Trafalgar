@@ -316,7 +316,7 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Customer Card", OnAfterGetRecordEvent, '', true, true)]
-    local procedure OnAfterGetRec(var Rec: Record Customer)
+    local procedure CustomerCard_OnAfterGetRecordEvent(var Rec: Record Customer)
     begin
         if Rec."Important Notes" <> '' then
             Message(Rec."Important Notes");
@@ -330,8 +330,19 @@ codeunit 50101 "Extention for Sales Subscriber"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, "No.", true, true)]
+    local procedure SalesLine_OnAfterValidateEvent_No(var Rec: Record "Sales Line")
+    var
+        Item: Record Item;
+    begin
+        if Rec.Type = Rec.Type::Item then
+            if Item.Get(Rec."No.") then
+                if Item."User Prompt" <> '' then
+                    Message(Item."User Prompt");
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post (Yes/No)", OnAfterConfirmPost, '', true, true)]
-    local procedure OnAfterConfirmPost(var SalesHeader: Record "Sales Header")
+    local procedure SalesPostYesNo_OnAfterConfirmPost(var SalesHeader: Record "Sales Header")
     var
         ConfirmManagement: Codeunit "Confirm Management";
         SalesLine: Record "Sales Line";
@@ -360,13 +371,33 @@ codeunit 50101 "Extention for Sales Subscriber"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnBeforeDeleteEvent, '', true, true)]
+    local procedure SalesHeader_OnBeforeDeleteEvent(var Rec: Record "Sales Header")
+    var
+        ArchiveManagement: Codeunit ArchiveManagement;
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        SalesHeaderQuote: Record "Sales Header";
+    begin
+        if Rec."Document Type" = Rec."Document Type"::Quote then begin
+            if SalesHeaderQuote.Get(Rec."Document Type", Rec."No.") then begin
+                ArchiveManagement.ArchSalesDocumentNoConfirm(SalesHeaderQuote);
+                ApprovalsMgmt.DeleteApprovalEntries(SalesHeaderQuote.RecordId);
+            end;
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, "Qty. To Ship", true, true)]
     local procedure SalesLine_OnAfterValidateEvent_QtyToShip(var Rec: Record "Sales Line")
+    var
+        Item: Record Item;
     begin
         if Rec."Document Type" IN [Rec."Document Type"::Quote, Rec."Document Type"::Order] then begin
             if Rec.Type = Rec.Type::Item then
-                if Rec."Qty. to Ship (Base)" > Rec.GetInStockQuantity() then
-                    Message('You Do Not Have Enough Stock For Item %1 - %2', Rec."No.", Rec."Product Code");
+                if Item.Get(Rec."No.") then begin
+                    if Item."Manufacturing Policy" <> Item."Manufacturing Policy"::"Make-to-Order" then
+                        if Rec."Qty. to Ship (Base)" > Rec.GetInStockQuantity() then
+                            Message('You Do Not Have Enough Stock For Item %1 - %2', Rec."No.", Rec."Product Code");
+                end;
         end;
     end;
 

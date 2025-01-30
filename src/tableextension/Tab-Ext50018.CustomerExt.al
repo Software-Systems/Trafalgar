@@ -35,5 +35,25 @@ tableextension 50018 TabExtCustomer extends Customer
             Caption = 'Accounts Email Address';
             DataClassification = CustomerContent;
         }
+        field(53010; "No. of Ongoing Quotes"; Integer)
+        {
+            CalcFormula = count("Sales Header" where(
+                    "Document Type" = const(Quote),
+                    "Sell-to Customer No." = field("No."),
+                    "Quote Reason Code" = filter(" ")
+                    ));
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(53020; "No. of Lost Quotes"; Integer)
+        {
+            CalcFormula = count("Sales Header" where(
+                    "Document Type" = const(Quote),
+                    "Sell-to Customer No." = field("No."),
+                    "Quote Reason Code" = filter(<> " ")
+                    ));
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 }

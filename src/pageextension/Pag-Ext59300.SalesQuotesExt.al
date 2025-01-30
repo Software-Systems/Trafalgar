@@ -8,6 +8,11 @@ pageextension 59300 PagExtSalesQuotes extends "Sales Quotes"
             {
                 ApplicationArea = all;
             }
+            field("Quote Reason Code"; Rec."Quote Reason Code")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Quote Reason Code field.', Comment = '%';
+            }
         }
     }
 
