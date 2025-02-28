@@ -4,6 +4,7 @@ permissionset 50100 "Trafalgar_Permission"
     Permissions = tabledata "Historical Purchases" = RIMD,
         tabledata "Historical Sales" = RIMD,
         tabledata "Payment File Data" = RIMD,
+        tabledata "Change Log Entry" = R,
         table "Historical Purchases" = X,
         table "Historical Sales" = X,
         table "Payment File Data" = X,

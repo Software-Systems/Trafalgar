@@ -14,10 +14,11 @@ pageextension 50026 PagExtVendorCard extends "Vendor Card"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Account Manager E-Mail field.', Comment = '%';
             }
-            field("Account E-Mail"; Rec."Account E-Mail")
+            field("Accounts E-Mail Address"; Rec."Account E-Mail")
             {
                 ApplicationArea = All;
-                ToolTip = 'Specifies the value of the Account E-Mail field.', Comment = '%';
+                Caption = 'Accounts Email Address'; // Updated Caption
+                ToolTip = 'Specifies the value of the Accounts E-Mail Address field.', Comment = '%';
             }
         }
     }

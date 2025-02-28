@@ -5,6 +5,10 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
         // Add changes to page layout here
         addafter(Status)
         {
+            field("Method Of Enquiry"; Rec."Method Of Enquiry")
+            {
+                ApplicationArea = All;
+            }
             field("Order Status"; Rec."Order Status")
             {
                 ApplicationArea = all;

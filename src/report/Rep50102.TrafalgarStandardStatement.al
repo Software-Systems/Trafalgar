@@ -13,6 +13,9 @@ report 50102 "Trafalgar - Standard Statement"
             column(No_Cust; "No.")
             {
             }
+            column(PrintOnlyOpen; PrintOnlyOpen)
+            {
+            }
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = sorting(Number) where(Number = const(1));
@@ -378,6 +381,12 @@ report 50102 "Trafalgar - Standard Statement"
                                     IsFirstPrintLine := false;
                                     ClearCompanyPicture();
                                 end;
+
+                                if PrintOnlyOpen = True then begin
+                                    if RemainingAmount = 0 then
+                                        CurrReport.Skip();
+                                    //STANLEY
+                                end;
                             end;
 
                             trigger OnPreDataItem()
@@ -470,9 +479,7 @@ report 50102 "Trafalgar - Standard Statement"
                             column(Desc_CustLedgEntry2; Description)
                             {
                             }
-                            column(YourReference_CustLedgEntry2; "External Document No.")
-                            {
-                            }
+                            column(YourReference_CustLedgEntry2; "Your Reference") { }
                             column(DueDate_CustLedgEntry2; Format("Due Date"))
                             {
                             }
@@ -1059,7 +1066,8 @@ report 50102 "Trafalgar - Standard Statement"
     begin
         StartDateTime := CurrentDateTime();
         PrintEntriesDue := true;
-        InitRequestPageDataInternal();
+        StartDate := 20000101D;
+        EndDate := Today;
     end;
 
     var
@@ -1187,6 +1195,7 @@ report 50102 "Trafalgar - Standard Statement"
         BalanceAUDCaption: Label 'Balance AUD';
         BalanceDueCaption: Label 'BALANCE DUE';
         PaymentAdviceCaption: Label 'PAYMENT ADVICE';
+        PrintOnlyOpen: Boolean;
 
     local procedure GetDate(PostingDate: Date; DueDate: Date): Date
     begin
@@ -1286,7 +1295,7 @@ report 50102 "Trafalgar - Standard Statement"
         exit(false);
     end;
 
-    procedure InitializeRequest(NewPrintEntriesDue: Boolean; NewPrintAllHavingEntry: Boolean; NewPrintAllHavingBal: Boolean; NewPrintReversedEntries: Boolean; NewPrintUnappliedEntries: Boolean; NewIncludeAgingBand: Boolean; NewPeriodLength: Text[30]; NewDateChoice: Option "Due Date","Posting Date"; NewLogInteraction: Boolean; NewStartDate: Date; NewEndDate: Date)
+    procedure InitializeRequest(NewPrintEntriesDue: Boolean; NewPrintAllHavingEntry: Boolean; NewPrintAllHavingBal: Boolean; NewPrintReversedEntries: Boolean; NewPrintUnappliedEntries: Boolean; NewIncludeAgingBand: Boolean; NewPeriodLength: Text[30]; NewDateChoice: Option "Due Date","Posting Date"; NewLogInteraction: Boolean; NewStartDate: Date; NewEndDate: Date; ParPrintOnlyOpen: Boolean)
     begin
         InitRequestPageDataInternal();
 
@@ -1301,6 +1310,7 @@ report 50102 "Trafalgar - Standard Statement"
         LogInteraction := NewLogInteraction;
         StartDate := NewStartDate;
         EndDate := NewEndDate;
+        PrintOnlyOpen := ParPrintOnlyOpen;
     end;
 
     local procedure IsReportInPreviewMode(): Boolean

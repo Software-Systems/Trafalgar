@@ -4,6 +4,10 @@ pageextension 50041 PagExtSalesQuote extends "Sales Quote"
     {
         addafter(Status)
         {
+            field("Method Of Enquiry"; Rec."Method Of Enquiry")
+            {
+                ApplicationArea = All;
+            }
             field(Documents; Rec.Documents)
             {
                 ApplicationArea = all;

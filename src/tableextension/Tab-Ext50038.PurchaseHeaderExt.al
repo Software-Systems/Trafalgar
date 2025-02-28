@@ -25,4 +25,12 @@ tableextension 50038 TabExtPurchaseHeader extends "Purchase Header"
             FieldClass = FlowField;
         }
     }
+    trigger OnAfterInsert()
+    var
+        GenLedSetup: Record "General Ledger Setup";
+    begin
+        GenLedSetup.Get();
+        Documents := GenLedSetup."SharePoint Purch Document Path" + '' + "No.";
+        Modify();
+    end;
 }

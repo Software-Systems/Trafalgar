@@ -79,7 +79,7 @@ codeunit 50106 SendCustomerStatements
         AttachmentFileNameLbl: Label 'Statement %1.pdf', Comment = '%1 Statement No.';
         GotAttachment: Boolean;
 
-        CustomerStatement: Report EmailCustomerStatement;
+        CustomerStatement: Report "Trafalgar - Standard Statement";// EmailCustomerStatement;
         PeriodLength: Text;
         StartDate: Date;
         EndDate: Date;
@@ -97,9 +97,9 @@ codeunit 50106 SendCustomerStatements
                   PeriodLength,   //NewPeriodLength: Text[30]; 
                   0,              //NewDateChoice: Option "Due Date","Posting Date"; 
                   FALSE,          //NewLogInteraction: Boolean; 
-                  ParStartDate,      //NewStartDate: Date; 
-                  ParEndDate,         //NewEndDate: Date
-                  ParOpenOnly            //ParPrintOnlyOpen : Boolen;
+                  ParStartDate,   //NewStartDate: Date; 
+                  ParEndDate,     //NewEndDate: Date
+                  ParOpenOnly     //ParOpenOnly            //ParPrintOnlyOpen : Boolen;
               );
         /*
         GotAttachment := Report.SaveAs(Report::EmailCustomerStatement, '', ReportFormat::Pdf, AttachmentOutStream, CustomerRecRef);
@@ -116,7 +116,7 @@ codeunit 50106 SendCustomerStatements
 
     local procedure GetReceipientEmail(Customer: Record Customer): Text[80]
     begin
-        if Customer."E-Mail" <> '' then
+        if Customer."Accounts Email Address" <> '' then
             exit(Customer."E-Mail");
     end;
 

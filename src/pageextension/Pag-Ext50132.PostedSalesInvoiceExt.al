@@ -1,5 +1,6 @@
 pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
 {
+
     layout
     {
         // Add changes to page layout here

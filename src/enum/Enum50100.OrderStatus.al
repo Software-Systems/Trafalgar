@@ -32,4 +32,12 @@ enum 50100 "Order Status"
     {
         Caption = 'Packed';
     }
+    value(8; "8 Printed")
+    {
+        Caption = 'Printed';
+    }
+    value(9; "9 Partial")
+    {
+        Caption = 'Partial';
+    }
 }

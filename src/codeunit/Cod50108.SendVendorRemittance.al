@@ -79,6 +79,8 @@ codeunit 50108 SendVendorRemittance
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
+        GenJournalLine.SetRange("Journal Template Name", _GEnJnl."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", _GEnJnl."Journal Batch Name");
         GenJournalLine.SetRange("Account No.", _GEnJnl."Account No.");
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
         ReturnRecordRef.GetTable(GenJournalLine);

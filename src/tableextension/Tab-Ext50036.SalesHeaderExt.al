@@ -68,6 +68,10 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         {
             DataClassification = CustomerContent;
         }
+        field(50112; "Method Of Enquiry"; Enum "Method Of Enquiry")
+        {
+            DataClassification = CustomerContent;
+        }
     }
     trigger OnAfterInsert()
     var

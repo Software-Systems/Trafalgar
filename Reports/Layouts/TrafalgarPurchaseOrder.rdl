@@ -9,7 +9,7 @@
       <am:Name>MSRB</am:Name>
       <am:Version>15.0.20283.0</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2024-09-01T11:21:23.9231071Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2025-02-16T23:46:01.5618131Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <AutoRefresh>0</AutoRefresh>
   <DataSources>
@@ -1975,7 +1975,7 @@ Cstr(Fields!TotalAmtInclVAT.Value)
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>26A Ferndell Street, South Granville NSW 2142</Value>
+                      <Value>2-4 Straits Avenue, South Granville NSW 2142</Value>
                       <Style>
                         <FontStyle>Normal</FontStyle>
                         <FontFamily>Calibri</FontFamily>

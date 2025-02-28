@@ -35,8 +35,10 @@ page 61001 "Statement Date Period"
                     if StartDate > EndDate then
                         Error('Start Date Cant Be Later Than End Date');
 
-                    if Customer.Get(CustomerNo) then
+                    if Customer.Get(CustomerNo) then begin
                         SendCustomerStatements.SendCustomerStatement(Customer, False, StartDate, EndDate);
+                        CurrPage.Close();
+                    end;
                 end;
             }
         }

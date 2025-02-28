@@ -63,6 +63,14 @@ tableextension 55107 TabExtSalesHeaderArchive extends "Sales Header Archive"
             OptionMembers = "",Cash,"Credit Refund";
             DataClassification = CustomerContent;
         }
+        field(50111; "Quote Reason Code"; Enum "Sales Quote Reason")
+        {
+            DataClassification = CustomerContent;
+        }
+        field(50112; "Method Of Enquiry"; Enum "Method Of Enquiry")
+        {
+            DataClassification = CustomerContent;
+        }
         field(51000; "Amount Paid"; Decimal)
         {
             Caption = 'Amount Paid';

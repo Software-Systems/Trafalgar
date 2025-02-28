@@ -63,5 +63,13 @@ tableextension 50112 TabExtSalesInvoiceHeader extends "Sales Invoice Header"
             OptionMembers = "",Cash,"Credit Refund";
             DataClassification = CustomerContent;
         }
+        field(50111; "Quote Reason Code"; Enum "Sales Quote Reason")
+        {
+            DataClassification = CustomerContent;
+        }
+        field(50112; "Method Of Enquiry"; Enum "Method Of Enquiry")
+        {
+            DataClassification = CustomerContent;
+        }
     }
 }

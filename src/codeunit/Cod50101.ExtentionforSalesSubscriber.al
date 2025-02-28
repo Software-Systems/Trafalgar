@@ -334,12 +334,54 @@ codeunit 50101 "Extention for Sales Subscriber"
     local procedure SalesLine_OnAfterValidateEvent_No(var Rec: Record "Sales Line")
     var
         Item: Record Item;
+        GLSetup: Record "General Ledger Setup";
     begin
         if Rec.Type = Rec.Type::Item then
-            if Item.Get(Rec."No.") then
+            if Item.Get(Rec."No.") then begin
                 if Item."User Prompt" <> '' then
                     Message(Item."User Prompt");
+
+                if Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order" then begin
+                    GLSetup.Get;
+                    if GLSetup."Location For Make To Order" <> '' then
+                        Rec.Validate(Rec."Location Code", GLSetup."Location For Make To Order");
+                end;
+
+                Rec."Product Code" := Item."Product Code";
+            end;
     end;
+    /*
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromSalesDocSalesLine, '', false, false)]
+    procedure CopyDocumentMgt_OnAfterCopySalesLineFromSalesDocSalesLine(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; IncludeHeader: Boolean; RecalculateLines: Boolean)
+    begin
+        ToSalesLine."Product Code" := FromSalesLine."Product Code";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromSalesLineBuffer, '', false, false)]
+    procedure CopyDocumentMgt_OnAfterCopySalesLineFromSalesLineBuffer(var ToSalesLine: Record "Sales Line"; FromSalesInvLine: Record "Sales Invoice Line"; IncludeHeader: Boolean; RecalculateLines: Boolean; var TempDocSalesLine: Record "Sales Line" temporary; ToSalesHeader: Record "Sales Header"; FromSalesLineBuf: Record "Sales Line"; var FromSalesLine2: Record "Sales Line")
+    begin
+        ToSalesLine."Product Code" := FromSalesInvLine."Product Code";
+        ToSalesLine.MODIFY;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromSalesCrMemoLineBuffer, '', false, false)]
+    procedure CopyDocumentMgt_OnAfterCopySalesLineFromSalesCrMemoLineBuffer(var ToSalesLine: Record "Sales Line"; FromSalesCrMemoLine: Record "Sales Cr.Memo Line"; IncludeHeader: Boolean; RecalculateLines: Boolean; var TempDocSalesLine: Record "Sales Line" temporary; ToSalesHeader: Record "Sales Header"; FromSalesLineBuf: Record "Sales Line"; FromSalesLine: Record "Sales Line")
+    begin
+        ToSalesLine."Product Code" := FromSalesCrMemoLine."Product Code";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromSalesShptLineBuffer, '', false, false)]
+    local procedure CopyDocumentMgt_OnAfterCopySalesLineFromSalesShptLineBuffer(var ToSalesLine: Record "Sales Line"; FromSalesShipmentLine: Record "Sales Shipment Line"; IncludeHeader: Boolean; RecalculateLines: Boolean; var TempDocSalesLine: Record "Sales Line" temporary; ToSalesHeader: Record "Sales Header"; FromSalesLineBuf: Record "Sales Line"; ExactCostRevMandatory: Boolean)
+    begin
+        ToSalesLine."Product Code" := FromSalesShipmentLine."Product Code";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromReturnRcptLineBuffer, '', false, false)]
+    local procedure CopyDocumentMgt_OnAfterCopySalesLineFromReturnRcptLineBuffer(var ToSalesLine: Record "Sales Line"; FromReturnReceiptLine: Record "Return Receipt Line"; IncludeHeader: Boolean; RecalculateLines: Boolean; var TempDocSalesLine: Record "Sales Line" temporary; ToSalesHeader: Record "Sales Header"; FromSalesLineBuf: Record "Sales Line"; CopyItemTrkg: Boolean)
+    begin
+    end;
+    */
+
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post (Yes/No)", OnAfterConfirmPost, '', true, true)]
     local procedure SalesPostYesNo_OnAfterConfirmPost(var SalesHeader: Record "Sales Header")

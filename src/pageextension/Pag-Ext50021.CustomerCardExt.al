@@ -58,7 +58,7 @@ pageextension 50021 PagExtCustomerCard extends "Customer Card"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Buyer E-Mail Address field.', Comment = '%';
             }
-            field("Accounts E-Mail"; Rec."Accounts Email Address")
+            field("Accounts E-Mail Address"; Rec."Accounts Email Address")
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Account E-Mail field.', Comment = '%';
