@@ -40,4 +40,8 @@ enum 50100 "Order Status"
     {
         Caption = 'Partial';
     }
+    value(10; "10 Waiting On Payment")
+    {
+        Caption = 'Waiting On Payment';
+    }
 }

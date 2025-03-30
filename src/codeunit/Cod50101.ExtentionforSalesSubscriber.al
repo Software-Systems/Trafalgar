@@ -28,6 +28,26 @@ codeunit 50101 "Extention for Sales Subscriber"
                     Error(CCDetailsErr);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Order", OnBeforeModifySalesOrderHeader, '', false, false)]
+    procedure SalesQuoteToOrder_OnBeforeModifySalesOrderHeader(SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
+    begin
+        if SalesQuoteHeader."Shipment Date" < Today then begin
+            if Confirm('Do you want to update the Shipment Date ?') then
+                SalesOrderHeader."Shipment Date" := TODAY;
+        end;
+
+        if SalesQuoteHeader."Requested Delivery Date" < Today then begin
+            if Confirm('Do you want to update the Delivery Date ?') then
+                SalesOrderHeader."Requested Delivery Date" := TODAY;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Mgt.", OnAfterCalculateShipBillToOptions, '', false, false)]
+    procedure CustomerMgt_OnAfterCalculateShipBillToOptions(var ShipToOptions: Enum "Sales Ship-to Options")
+    begin
+        ShipToOptions := ShipToOptions::"Custom Address";
+    end;
+
     local procedure UpdateWarehouseLocation(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header")
     var
         PostCode: Record "Post Code";
@@ -84,12 +104,25 @@ codeunit 50101 "Extention for Sales Subscriber"
         // end;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification', '', false, false)]
-    local procedure OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
-
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post (Yes/No)", OnAfterConfirmPost, '', true, true)]
+    local procedure SalesPostYesNo_OnAfterConfirmPost(var SalesHeader: Record "Sales Header")
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        SalesLine: Record "Sales Line";
+        QuestionLbl: Label 'Do you want to Update the Posting, Shipment & Document Date to today?';
     begin
-        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
-            SalesHeader."Requested Delivery Date" := today;
+        if ConfirmManagement.GetResponse(QuestionLbl, false) then begin
+            SalesHeader."Posting Date" := Today;
+            SalesHeader."Shipment Date" := Today;
+            SalesHeader.Validate("Document Date", Today);
+            SalesHeader."VAT Reporting Date" := Today;
+            SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+            SalesLine.SetRange("Document No.", SalesHeader."No.");
+            if SalesLine.FindSet() then
+                repeat
+                    SalesLine."Shipment Date" := SalesHeader."Shipment Date";
+                    SalesLine.Modify(false);
+                until SalesLine.Next() = 0;
         end;
     end;
 
@@ -143,24 +176,6 @@ codeunit 50101 "Extention for Sales Subscriber"
         CheckForPlannedProductionOrders(SalesHeader, SalesLine);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterValidateEvent, "Sell-to Customer No.", false, false)]
-    local procedure OnAfterInsertEventCustomer(var Rec: Record "Sales Header")
-    begin
-        if Rec."Document Type" = Rec."Document Type"::Quote then
-            Rec."Quote Created By" := UserId;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterValidateEvent, "Payment Processed", false, false)]
-    local procedure OnAfterValidateEvent(var Rec: Record "Sales Header")
-    var
-        UserSetup: Record "User Setup";
-    begin
-        if UserSetup.Get(UserId) then begin
-            if (not UserSetup."Can Reprocess Payment") or (not UserSetup."Can Always Release CIA orders") then
-                Error('Cannot Modify the Payment Processed field, please contact the administrator!');
-        end;
-    end;
-
     procedure SendEmailProforma(var SalesHeader: Record "Sales Header")
     var
         ReportSelections: Record "Report Selections";
@@ -173,36 +188,7 @@ codeunit 50101 "Extention for Sales Subscriber"
                 ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetDocTypeTxt(), true, SalesHeader.GetBillToNo())
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterLookupShipToPostCode, '', true, true)]
-    local procedure SalesHeader_OnAfterLookupShipToPostCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
-    begin
-        UpdateWarehouseLocation(SalesHeader, xSalesHeader);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs, '', true, true)]
-    local procedure SalesHeader_OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(var Cust: Record Customer; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
-    begin
-        if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Order) or
-        (SalesHeader."Document Type" <> SalesHeader."Document Type"::Quote) then begin
-            if Cust.Blocked = Cust.Blocked::Ship then
-                IsHandled := true
-            else
-                IsHandled := false;
-        end;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnValidateBillToCustomerNoOnBeforeCheckBlockedCustOnDocs, '', true, true)]
-    local procedure SalesHeader_OnValidateBillToCustomerNoOnBeforeCheckBlockedCustOnDocs(var Cust: Record Customer; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
-    begin
-        if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Order) or
-        (SalesHeader."Document Type" <> SalesHeader."Document Type"::Quote) then begin
-            if (Cust.Blocked = Cust.Blocked::Ship) or (Cust.Blocked = Cust.Blocked::" ") then
-                IsHandled := true
-            else
-                IsHandled := false;
-        end;
-    end;
-
+    //============================== CUSTOMER =============================================
     [EventSubscriber(ObjectType::Table, Database::Customer, OnBeforeCheckBlockedCust, '', true, true)]
     local procedure Customer_OnBeforeCheckBlockedCust(Customer: Record Customer; Source: Option; var IsHandled: Boolean)
     begin
@@ -241,6 +227,66 @@ codeunit 50101 "Extention for Sales Subscriber"
             IsHandled := true;
     end;
 
+    [EventSubscriber(ObjectType::Page, Page::"Customer Card", OnAfterGetRecordEvent, '', true, true)]
+    local procedure CustomerCard_OnAfterGetRecordEvent(var Rec: Record Customer)
+    begin
+        if Rec."Important Notes" <> '' then
+            Message(Rec."Important Notes");
+    end;
+
+    //============================== SALES HEADER =============================================
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterValidateEvent, "No.", true, true)]
+    local procedure SalesHeader_OnAfterValidateEvent_No(var Rec: Record "Sales Header")
+    begin
+        if Rec."Document Type" = Rec."Document Type"::Quote then begin
+            Rec."Quote Valid Until Date" := CalcDate('+30D', Today)
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnBeforeDeleteEvent, '', true, true)]
+    local procedure SalesHeader_OnBeforeDeleteEvent(var Rec: Record "Sales Header")
+    var
+        ArchiveManagement: Codeunit ArchiveManagement;
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        SalesHeaderQuote: Record "Sales Header";
+    begin
+        if Rec."Document Type" = Rec."Document Type"::Quote then begin
+            if SalesHeaderQuote.Get(Rec."Document Type", Rec."No.") then begin
+                ArchiveManagement.ArchSalesDocumentNoConfirm(SalesHeaderQuote);
+                ApprovalsMgmt.DeleteApprovalEntries(SalesHeaderQuote.RecordId);
+            end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterValidateEvent, "Payment Processed", false, false)]
+    local procedure SalesHeader_OnAfterValidateEvent_PaymentProcessed(var Rec: Record "Sales Header")
+    var
+        UserSetup: Record "User Setup";
+    begin
+        if UserSetup.Get(UserId) then begin
+            if (not UserSetup."Can Reprocess Payment") or (not UserSetup."Can Always Release CIA orders") then
+                Error('Cannot Modify the Payment Processed field, please contact the administrator!');
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterLookupShipToPostCode, '', true, true)]
+    local procedure SalesHeader_OnAfterLookupShipToPostCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
+    begin
+        UpdateWarehouseLocation(SalesHeader, xSalesHeader);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnValidateBillToCustomerNoOnBeforeCheckBlockedCustOnDocs, '', true, true)]
+    local procedure SalesHeader_OnValidateBillToCustomerNoOnBeforeCheckBlockedCustOnDocs(var Cust: Record Customer; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
+    begin
+        if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Order) or
+        (SalesHeader."Document Type" <> SalesHeader."Document Type"::Quote) then begin
+            if (Cust.Blocked = Cust.Blocked::Ship) or (Cust.Blocked = Cust.Blocked::" ") then
+                IsHandled := true
+            else
+                IsHandled := false;
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterOnInsert, '', true, true)]
     local procedure SalesHeader_OnAfterOnInsert(var SalesHeader: Record "Sales Header")
     var
@@ -273,6 +319,18 @@ codeunit 50101 "Extention for Sales Subscriber"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs, '', true, true)]
+    local procedure SalesHeader_OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(var Cust: Record Customer; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
+    begin
+        if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Order) or
+        (SalesHeader."Document Type" <> SalesHeader."Document Type"::Quote) then begin
+            if Cust.Blocked = Cust.Blocked::Ship then
+                IsHandled := true
+            else
+                IsHandled := false;
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification, '', true, true)]
     local procedure SalesHeader_OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     var
@@ -281,6 +339,10 @@ codeunit 50101 "Extention for Sales Subscriber"
         County: Record County;
     begin
         //UpdateWarehouseLocation(SalesHeader, xSalesHeader);
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+            SalesHeader."Requested Delivery Date" := today;
+        end;
+
         if SalesHeader."Sell-to Customer No." <> '' then begin
             PostCode.SetRange(Code, SalesHeader."Ship-to Post Code");
             if PostCode.FindFirst() then begin
@@ -300,7 +362,7 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr, '', true, true)]
-    local procedure OnAfterCopyShipToCustomer(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
+    local procedure SalesHeader_OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     begin
         UpdateWarehouseLocation(SalesHeader, xSalesHeader);
     end;
@@ -313,13 +375,9 @@ codeunit 50101 "Extention for Sales Subscriber"
         if Customer.Get(Rec."Sell-to Customer No.") then
             if Customer."Important Notes" <> '' then
                 Message(Customer."Important Notes");
-    end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Customer Card", OnAfterGetRecordEvent, '', true, true)]
-    local procedure CustomerCard_OnAfterGetRecordEvent(var Rec: Record Customer)
-    begin
-        if Rec."Important Notes" <> '' then
-            Message(Rec."Important Notes");
+        if Rec."Document Type" = Rec."Document Type"::Quote then
+            Rec."Quote Created By" := UserId;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterInsertEvent, '', false, false)]
@@ -329,7 +387,7 @@ codeunit 50101 "Extention for Sales Subscriber"
             Rec."Quote Valid Until Date" := CalcDate('+30D', Today)
         end;
     end;
-
+    //============================== SALES LINE =============================================
     [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, "No.", true, true)]
     local procedure SalesLine_OnAfterValidateEvent_No(var Rec: Record "Sales Line")
     var
@@ -348,6 +406,10 @@ codeunit 50101 "Extention for Sales Subscriber"
                 end;
 
                 Rec."Product Code" := Item."Product Code";
+                if Item."Product Code" = 'DELIVERY' then begin
+                    Rec.Validate(Quantity, 1);
+                    Rec.Validate("Qty. to Ship", 1);
+                end;
             end;
     end;
     /*
@@ -382,52 +444,6 @@ codeunit 50101 "Extention for Sales Subscriber"
     end;
     */
 
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post (Yes/No)", OnAfterConfirmPost, '', true, true)]
-    local procedure SalesPostYesNo_OnAfterConfirmPost(var SalesHeader: Record "Sales Header")
-    var
-        ConfirmManagement: Codeunit "Confirm Management";
-        SalesLine: Record "Sales Line";
-        QuestionLbl: Label 'Do you want to Update the Posting, Shipment & Document Date to today?';
-    begin
-        if ConfirmManagement.GetResponse(QuestionLbl, false) then begin
-            SalesHeader."Posting Date" := Today;
-            SalesHeader."Shipment Date" := Today;
-            SalesHeader.Validate("Document Date", Today);
-            SalesHeader."VAT Reporting Date" := Today;
-            SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-            SalesLine.SetRange("Document No.", SalesHeader."No.");
-            if SalesLine.FindSet() then
-                repeat
-                    SalesLine."Shipment Date" := SalesHeader."Shipment Date";
-                    SalesLine.Modify(false);
-                until SalesLine.Next() = 0;
-        end;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnAfterValidateEvent, "No.", true, true)]
-    local procedure SalesHeader_OnAfterValidateEvent_No(var Rec: Record "Sales Header")
-    begin
-        if Rec."Document Type" = Rec."Document Type"::Quote then begin
-            Rec."Quote Valid Until Date" := CalcDate('+30D', Today)
-        end;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", OnBeforeDeleteEvent, '', true, true)]
-    local procedure SalesHeader_OnBeforeDeleteEvent(var Rec: Record "Sales Header")
-    var
-        ArchiveManagement: Codeunit ArchiveManagement;
-        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
-        SalesHeaderQuote: Record "Sales Header";
-    begin
-        if Rec."Document Type" = Rec."Document Type"::Quote then begin
-            if SalesHeaderQuote.Get(Rec."Document Type", Rec."No.") then begin
-                ArchiveManagement.ArchSalesDocumentNoConfirm(SalesHeaderQuote);
-                ApprovalsMgmt.DeleteApprovalEntries(SalesHeaderQuote.RecordId);
-            end;
-        end;
-    end;
-
     [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, "Qty. To Ship", true, true)]
     local procedure SalesLine_OnAfterValidateEvent_QtyToShip(var Rec: Record "Sales Line")
     var
@@ -436,30 +452,13 @@ codeunit 50101 "Extention for Sales Subscriber"
         if Rec."Document Type" IN [Rec."Document Type"::Quote, Rec."Document Type"::Order] then begin
             if Rec.Type = Rec.Type::Item then
                 if Item.Get(Rec."No.") then begin
-                    if Item."Manufacturing Policy" <> Item."Manufacturing Policy"::"Make-to-Order" then
-                        if Rec."Qty. to Ship (Base)" > Rec.GetInStockQuantity() then
-                            Message('You Do Not Have Enough Stock For Item %1 - %2', Rec."No.", Rec."Product Code");
+                    if Item.Type = Item.Type::Inventory then
+                        if Item."Manufacturing Policy" <> Item."Manufacturing Policy"::"Make-to-Order" then
+                            if Rec."Qty. to Ship (Base)" > Rec.GetInStockQuantity() then
+                                Message('You Do Not Have Enough Stock For Item %1 - %2', Rec."No.", Rec."Product Code");
                 end;
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Order", OnBeforeModifySalesOrderHeader, '', false, false)]
-    procedure SalesQuoteToOrder_OnBeforeModifySalesOrderHeader(SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
-    begin
-        if SalesQuoteHeader."Shipment Date" < Today then begin
-            if Confirm('Do you want to update the Shipment Date ?') then
-                SalesOrderHeader."Shipment Date" := TODAY;
-        end;
 
-        if SalesQuoteHeader."Requested Delivery Date" < Today then begin
-            if Confirm('Do you want to update the Delivery Date ?') then
-                SalesOrderHeader."Requested Delivery Date" := TODAY;
-        end;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Mgt.", OnAfterCalculateShipBillToOptions, '', false, false)]
-    procedure CustomerMgt_OnAfterCalculateShipBillToOptions(var ShipToOptions: Enum "Sales Ship-to Options")
-    begin
-        ShipToOptions := ShipToOptions::"Custom Address";
-    end;
 }

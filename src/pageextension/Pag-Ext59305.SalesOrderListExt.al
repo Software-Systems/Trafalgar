@@ -18,7 +18,18 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
                 Width = 50;
                 Visible = false;
             }
-
+            field(ShortcutDimCode6; ShortcutDimCode[6])
+            {
+                ApplicationArea = Dimensions;
+                CaptionClass = '1,2,6';
+                TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                trigger OnValidate()
+                begin
+                    Rec.ValidateShortcutDimCode(6, ShortcutDimCode[6]);
+                end;
+            }
         }
         modify("No.")
         {
@@ -56,28 +67,30 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
         {
             Editable = false;
         }
-        modify("Amt. Ship. Not Inv. (LCY)")
-        {
-            Editable = false;
-        }
-        modify("Amt. Ship. Not Inv. (LCY) Base")
-        {
-            Editable = false;
-        }
-        modify(Amount)
-        {
-            Editable = false;
-        }
-        modify("Amount Including VAT")
-        {
-            Editable = false;
-        }
-
     }
 
     actions
     {
         // Add changes to page actions here
+        addafter("Print Confirmation")
+        {
+            action("Print Quotation")
+            {
+                Image = Print;
+                ApplicationArea = all;
+                trigger OnAction()
+                var
+                    TrafalgarSalesQuotation: Report "Trafalgar Sales Quotation";
+                    SalesHeader: Record "Sales Header";
+                begin
+                    SalesHeader.SetRange("No.", Rec."No.");
+                    if SalesHeader.FindFirst then begin
+                        TrafalgarSalesQuotation.SetTableView(SalesHeader);
+                        TrafalgarSalesQuotation.Run();
+                    end;
+                end;
+            }
+        }
         addafter("Create &Warehouse Shipment")
         {
             action("Update Warehouse Availability")
@@ -96,6 +109,12 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
         addafter("Create &Warehouse Shipment_Promoted")
         {
             actionref("Update Warehouse Availability_Promoted"; "Update Warehouse Availability")
+            {
+            }
+        }
+        addafter("Print Confirmation_Promoted")
+        {
+            actionref(PrintQuotation_Promoted; "Print Quotation")
             {
             }
         }
@@ -121,12 +140,16 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
             }
         }
     }
+    var
+        ShortcutDimCode: array[8] of Code[20];
+
     trigger OnAfterGetRecord()
     var
         ChangeFieldColour: Codeunit "Change Field Color";
     begin
         CLEAR(ChangeFieldColour);
         StylExpTxt := ChangeFieldColour.ChangeSalesOrderStatuColor(Rec);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     trigger OnOpenPage()

@@ -10,6 +10,19 @@ pageextension 50516 PagExtSalesLines extends "Sales Lines"
                 ApplicationArea = all;
             }
         }
+        addafter("No.")
+        {
+            field("Product Code"; Rec."Product Code")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Product Code field.';
+            }
+            field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Shortcut Dimension 6 Code field.', Comment = '%';
+            }
+        }
     }
     var
         CustomerName: Text[100];

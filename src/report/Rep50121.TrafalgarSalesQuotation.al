@@ -1,7 +1,7 @@
-report 50116 "Invoice-Sales Order"
+report 50121 "Trafalgar Sales Quotation"
 {
-    Caption = 'Invoice';
-    DefaultRenderingLayout = "TrafalgarInvoiceSO.rdl";
+    Caption = 'Sales Quotation';
+    DefaultRenderingLayout = "TrafalgarSalesQuotation.rdl";
     WordMergeDataItem = Header;
     dataset
     {
@@ -9,7 +9,7 @@ report 50116 "Invoice-Sales Order"
         {
             DataItemTableView = sorting("Document Type", "No.");
             RequestFilterFields = "No.", "Sell-to Customer No.", "No. Printed";
-            RequestFilterHeading = 'Pro Forma Invoice';
+            RequestFilterHeading = 'Sales Quotation';
             column(DocumentDate; Format("Document Date", 0, 4))
             {
             }
@@ -19,7 +19,7 @@ report 50116 "Invoice-Sales Order"
             column(CompanyPicture; CompanyInformation.Picture)
             {
             }
-            column(AmountPaid_Header; GetTotalSalesPaid)// "Amount Paid") Changed on 26th March 2025
+            column(AmountPaid_Header; "Amount Paid")
             {
             }
             column(AmountPaidFormat; AmountPaidFormat)
@@ -286,7 +286,7 @@ report 50116 "Invoice-Sales Order"
                 column(LineNo_Line; "Line No.")
                 {
                 }
-                column(LineAmount_Line; Lineamounttext)
+                column(LineAmount_Line; LineAmountText)
                 {
                 }
                 column(UnitPrice_Line; "Unit Price")
@@ -450,7 +450,7 @@ report 50116 "Invoice-Sales Order"
                     FormattedTotalAmount := Format(TotalAmount, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode));
                     FormattedTotalVATAmount := Format(TotalVATAmount, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode));
                     FormattedTotalAmountInclVAT := Format(TotalAmountInclVAT, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode));
-                    TotalAmtPaid := TotalAmountInclVAT - Header.GetTotalSalesPaid();//Header."Amount Paid"; Changed on 26th March 2025
+                    TotalAmtPaid := TotalAmountInclVAT - Header."Amount Paid";
                 end;
             }
 
@@ -465,25 +465,25 @@ report 50116 "Invoice-Sales Order"
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue();
                 if PaymentTerm.Get(Header."Payment Terms Code") then;
-                AmountPaidFormat := '$ ' + Format(Header.GetTotalSalesPaid)// Header."Amount Paid"); Changed on 26th March 2025
+                AmountPaidFormat := Format(Header."Amount Paid");
             end;
         }
     }
     rendering
     {
-        layout("TrafalgarInvoiceSO.rdl")
+        layout("TrafalgarSalesQuotation.rdl")
         {
             Type = RDLC;
-            LayoutFile = '.\Reports\Layouts\TrafalgarInvoiceSO.rdl';
-            Caption = 'Standard Sales Invoice (RDLC)';
-            Summary = 'The Standard Sales Invoice (RDLC) provides a detailed layout.';
+            LayoutFile = '.\Reports\Layouts\TrafalgarSalesQuotation.rdl';
+            Caption = 'Standard Sales Quotation (RDLC)';
+            Summary = 'The Standard Sales Quotation (RDLC) provides a detailed layout.';
         }
-        layout("EmailLayoutInvoiceSO.docx")
+        layout("EmailLayoutQuotation.docx")
         {
             Type = Word;
-            LayoutFile = '.\Reports\Layouts\EmailLayoutSO.docx';
-            Caption = 'Standard Sales Invoice Email Layout';
-            Summary = 'The Standard Sales Invoice provides a detailed layout.';
+            LayoutFile = '.\Reports\Layouts\EmailLayoutQuotation.docx';
+            Caption = 'Standard Sales Quotation Email Layout';
+            Summary = 'The Standard Sales Quotation provides a detailed layout.';
         }
     }
 
@@ -505,8 +505,6 @@ report 50116 "Invoice-Sales Order"
 
     var
         PaymentTerm: Record "Payment Terms";
-        LineAmountText: Text;
-        UnitAmtAfterDisText: Text;
         CompanyBankAccount: Record "Bank Account";
         DummyVATAmountLine: Record "VAT Amount Line";
         DummyShipmentMethod: Record "Shipment Method";
@@ -531,6 +529,8 @@ report 50116 "Invoice-Sales Order"
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
         LegalOfficeTxt, LegalOfficeLbl : Text;
+        LineAmountText: Text;
+        UnitAmtAfterDisText: Text;
 
     protected var
         CompanyInformation: Record "Company Information";

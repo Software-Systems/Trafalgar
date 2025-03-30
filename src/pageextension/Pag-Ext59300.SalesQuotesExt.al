@@ -8,10 +8,10 @@ pageextension 59300 PagExtSalesQuotes extends "Sales Quotes"
             {
                 ApplicationArea = all;
             }
-            field("Quote Reason Code"; Rec."Quote Reason Code")
+            field("Lost Opportunity"; Rec."Lost Opportunity")
             {
                 ApplicationArea = All;
-                ToolTip = 'Specifies the value of the Quote Reason Code field.', Comment = '%';
+                ToolTip = 'Specifies the value of the Lost Opportunity field.', Comment = '%';
             }
         }
     }

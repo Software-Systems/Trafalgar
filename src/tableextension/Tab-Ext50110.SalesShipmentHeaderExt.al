@@ -63,11 +63,15 @@ tableextension 50110 TabExtSalesShipmentHeader extends "Sales Shipment Header"
             OptionMembers = "",Cash,"Credit Refund";
             DataClassification = CustomerContent;
         }
-        field(50111; "Quote Reason Code"; Enum "Sales Quote Reason")
+        field(50111; "Method Of Enquiry"; Enum "Method Of Enquiry")
         {
             DataClassification = CustomerContent;
         }
-        field(50112; "Method Of Enquiry"; Enum "Method Of Enquiry")
+        field(50121; "Lost Opportunity"; Boolean)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(50122; "Quote Reason Code"; Enum "Sales Lost Reason")
         {
             DataClassification = CustomerContent;
         }

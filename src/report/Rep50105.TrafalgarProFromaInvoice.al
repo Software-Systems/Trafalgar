@@ -19,7 +19,7 @@ report 50105 "Trafalgar Pro Froma Invoice"
             column(CompanyPicture; CompanyInformation.Picture)
             {
             }
-            column(AmountPaid_Header; "Amount Paid")
+            column(AmountPaid_Header; GetTotalSalesPaid)// "Amount Paid") Changed on 26th March 2025
             {
             }
             column(AmountPaidFormat; AmountPaidFormat)
@@ -450,7 +450,7 @@ report 50105 "Trafalgar Pro Froma Invoice"
                     FormattedTotalAmount := Format(TotalAmount, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode));
                     FormattedTotalVATAmount := Format(TotalVATAmount, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode));
                     FormattedTotalAmountInclVAT := Format(TotalAmountInclVAT, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode));
-                    TotalAmtPaid := TotalAmountInclVAT - Header."Amount Paid";
+                    TotalAmtPaid := TotalAmountInclVAT - Header.GetTotalSalesPaid;// Header."Amount Paid";  Changed on 26th March 2025
                 end;
             }
 
@@ -465,7 +465,7 @@ report 50105 "Trafalgar Pro Froma Invoice"
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue();
                 if PaymentTerm.Get(Header."Payment Terms Code") then;
-                AmountPaidFormat := Format(Header."Amount Paid");
+                AmountPaidFormat := Format(Header.GetTotalSalesPaid);//Header."Amount Paid");  Changed on 26th March 2025
             end;
         }
     }

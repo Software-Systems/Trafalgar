@@ -3,6 +3,10 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
     layout
     {
         // Add changes to page layout here
+        modify("Amount Paid")
+        {
+            Editable = False;
+        }
         addafter(Status)
         {
             field("Method Of Enquiry"; Rec."Method Of Enquiry")
@@ -12,11 +16,16 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
             field("Order Status"; Rec."Order Status")
             {
                 ApplicationArea = all;
+                trigger OnValidate()
+                begin
+                    CurrPage.Update();
+                end;
             }
             field(Documents; Rec.Documents)
             {
                 ApplicationArea = all;
             }
+            /*
             field("CC Processed By"; Rec."CC Processed By")
             {
                 ApplicationArea = All;
@@ -37,6 +46,7 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the CC Machine field.', Comment = '%';
             }
+            */
             field("Created By"; Rec."Created By")
             {
                 ApplicationArea = All;
@@ -52,6 +62,28 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Quote Created By field.', Comment = '%';
                 Editable = false;
+            }
+            field("Lost Opportunity"; Rec."Lost Opportunity")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Lost Opportunity field.', Comment = '%';
+                trigger OnValidate()
+                begin
+                    CurrPage.Update();
+                end;
+            }
+            field("Quote Reason Code"; Rec."Quote Reason Code")
+            {
+                ApplicationArea = All;
+                Caption = 'Lost Reason'; // Updated caption
+                Editable = Rec."Lost Opportunity";
+                ToolTip = 'Specifies the value of the Lost Reason field.', Comment = '%';
+            }
+            field(GetTotalSalesPaid; Rec.GetTotalSalesPaid())
+            {
+                Caption = 'Total Paid';
+                Style = StrongAccent;
+                ApplicationArea = All;
             }
         }
     }
@@ -110,23 +142,22 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
         }
         addafter(ProformaInvoice)
         {
-            // action("Sales Quote")
-            // {
-            //     Caption = 'Sales Quote';
-            //     Image = Report;
-            //     ToolTip = 'Print Sales Quote.';
-            //     ApplicationArea = all;
-            //     trigger OnAction()
-            //     var
-            //         SalesQuoteReport: Report "Sales Quote";
-            //         SalesHeader: Record "Sales Header";
-            //     begin
-            //         SalesHeader.SetRange("No.", Rec."No.");
-            //         SalesHeader.FindFirst();
-            //         SalesQuoteReport.SetTableView(SalesHeader);
-            //         SalesQuoteReport.Run();
-            //     end;
-            // }
+            action("Print Quotation")
+            {
+                Image = Print;
+                ApplicationArea = all;
+                trigger OnAction()
+                var
+                    TrafalgarSalesQuotation: Report "Trafalgar Sales Quotation";
+                    SalesHeader: Record "Sales Header";
+                begin
+                    SalesHeader.SetRange("No.", Rec."No.");
+                    if SalesHeader.FindFirst then begin
+                        TrafalgarSalesQuotation.SetTableView(SalesHeader);
+                        TrafalgarSalesQuotation.Run();
+                    end;
+                end;
+            }
             action("Delivery Docket")
             {
                 Caption = 'Delivery Docket';
@@ -136,12 +167,12 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
                 trigger OnAction()
                 var
                     SalesHeader: Record "Sales Header";
-                    SalesQuoteReport: Report "Delivery Docket";
+                    TrafalgarSalesQuotation: Report "Delivery Docket";
                 begin
                     SalesHeader.SetRange("No.", Rec."No.");
                     SalesHeader.FindFirst();
-                    SalesQuoteReport.SetTableView(SalesHeader);
-                    SalesQuoteReport.Run();
+                    TrafalgarSalesQuotation.SetTableView(SalesHeader);
+                    TrafalgarSalesQuotation.Run();
                 end;
             }
             action("Invoice")
@@ -160,6 +191,13 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
                     Invoice.SetTableView(SalesHeader);
                     Invoice.Run();
                 end;
+            }
+            action("Take Payment")
+            {
+                Image = Payment;
+                ApplicationArea = all;
+                RunObject = Page "Sales Payments";
+                RunPageLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
             }
         }
         addafter(SendEmailConfirmation)
@@ -180,6 +218,24 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
                 end;
             }
         }
+        addbefore("Send IC Sales Order")
+        {
+            /*
+            action(PostPayReceipt)
+            {
+                Caption = 'Post Pay Receipt';
+                ApplicationArea = all;
+                Image = PostDocument;
+                ToolTip = 'Post Pay Receipt';
+                trigger OnAction()
+                begin
+                    if Rec."Payment Processed" then
+                        Error('You have already processed the payment.');
+                    CreateandPostPayReceipt();
+                end;
+            }
+            */
+        }
         addafter(SendEmailConfirmation_Promoted)
         {
             actionref(EmailProforma_Promoted; SendProformaByEmail)
@@ -191,12 +247,20 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
             actionref("Open_Docs_Promoted"; OpenDocument)
             {
             }
+            /*
+            actionref("PostPayReceipt_Promoted"; PostPayReceipt)
+            {
+            }
+            */
+            actionref(TakePayment_Promoted; "Take Payment")
+            {
+            }
         }
         addafter(ProformaInvoice_Promoted)
         {
-            // actionref("SalesQuote_Promoted"; "Sales Quote")
-            // {
-            // }
+            actionref(PrintQuotation_Promoted; "Print Quotation")
+            {
+            }
             actionref("DeliveryDocket_Promoted"; "Delivery Docket")
             {
             }
@@ -205,6 +269,12 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
             }
         }
     }
+    var
+        UserSetup: Record "User Setup";
+        AmountEdit: Boolean;
+        NoStockMessage: Text;
+        ShortcutDimCode: array[8] of Code[20];
+
     local procedure ItemInventoryCheck(var SalesLine: Record "Sales Line")
     var
         Item: Record Item;
@@ -352,12 +422,10 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
         exit(false);
     end;
 
-    var
-        UserSetup: Record "User Setup";
-        AmountEdit: Boolean;
-        NoStockMessage: Text;
-
     trigger OnAfterGetRecord()
+    var
+        Customer: Record Customer;
+        TrafalgarGenCodeunit: Codeunit "Trafalgar General Codeunit";
     begin
         AmountEdit := true;
         if Rec."Payment Processed" then
@@ -368,8 +436,69 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
             AmountEdit := true;
 
         NoStockMessage := Rec.CheckInStockQuantity;
-        if Rec."No." <> xRec."No." then
+        if Rec."No." <> xRec."No." then begin
             if NoStockMessage <> '' then
                 Message('%1', NoStockMessage);
+
+            if Customer.Get(Rec."Bill-to Customer No.") then
+                TrafalgarGenCodeunit.PopUpCustomerImportantNotes(Customer."Important Notes");
+        end;
+
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
+    end;
+
+    procedure CreateandPostPayReceipt()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        NoSeries: Record "No. Series";
+        NoSeriesCU: Codeunit "No. Series";
+        Dialog: Dialog;
+        GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
+    begin
+
+        if Rec."Amount Paid" = 0 then
+            Error('You must specify amount paid');
+
+        if Confirm('Do you want to record $ ' + Format(Rec."Amount Paid") + ' as a customer payment?', false) then begin
+            GenJnlLine.Reset();
+            GenJnlLine.SetRange("Journal Template Name", 'GENERAL');
+            GenJnlLine.SetRange("Journal Batch Name", 'SYSTEM');
+            GenJnlLine.SetRange("Line No.", 10000);
+            if GenJnlLine.FindFirst() then
+                GenJnlLine.Delete();
+            GenJnlLine.Init();
+            GenJnlLine.Validate("Journal Template Name", 'GENERAL');
+            GenJnlLine.Validate("Journal Batch Name", 'SYSTEM');
+            NoSeries.Reset();
+            NoSeries.SetRange(NoSeries.Code, 'GJNL-GENSYS');
+            if NoSeries.FindFirst() then begin
+                GenJnlLine.Validate("Document No.", NoSeriesCU.GetNextNo(NoSeries.Code));
+            end;
+            GenJnlLine.Validate("Line No.", 10000);
+            GenJnlLine.Validate("Source Code", 'GENJNL');
+            GenJnlLine.Insert();
+            /*
+            Fanie's Request - 05th March 2025 (Move this code from SmallChanges.app)
+            On A Sales Order, On Post Pay Receipt, 
+            If the CC Payment Date Field has a value, use that field, 
+            if Not, use the Posting Date of the Sale order
+            */
+            if Rec."CC Payment Date" = 0D Then
+                GenJnlLine.Validate("Posting Date", Today)
+            else
+                GenJnlLine.Validate("Posting Date", Rec."CC Payment Date");
+            GenJnlLine.Validate("Document Type", GenJnlLine."Document Type"::Payment);
+            GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Customer);
+            GenJnlLine.Validate("Account No.", Rec."Bill-to Customer No.");
+            GenJnlLine.Validate(Amount, Rec."Amount Paid" * -1);
+            GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
+            GenJnlLine.Validate("Bal. Account No.", 'CBA');
+            GenJnlLine.Validate("External Document No.", Rec."No.");
+            GenJnlLine.Modify();
+            GenJnlPostBatch.Run(GenJnlLine);
+            Rec."Payment Processed" := true;
+            Rec.Modify();
+            Message('Customer payment of $' + Format(Rec."Amount Paid") + ' has been recorded. ');
+        end;
     end;
 }

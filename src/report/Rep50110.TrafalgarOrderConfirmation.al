@@ -399,10 +399,10 @@ report 50110 TrafalgarOrderConfirmation
             column(ShowWorkDescription; ShowWorkDescription)
             {
             }
-            column(Amount_Paid; "Amount Paid")
+            column(Amount_Paid; GetTotalSalesPaid)//"Amount Paid") Changed on 26th March 2025
             {
             }
-            column(AmountPaidText; Header."Amount Paid")
+            column(AmountPaidText; Header.GetTotalSalesPaid)// Header."Amount Paid") Changed on 26th March 2025
             {
             }
             dataitem(Line; "Sales Line")

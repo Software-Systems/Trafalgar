@@ -7,6 +7,31 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         {
             Caption = 'Order Status';
             DataClassification = CustomerContent;
+            trigger OnValidate()
+            var
+                SalesLine: Record "Sales Line";
+                Item: Record Item;
+            begin
+                if "Order Status" = "Order Status"::"7 Packed" then begin
+                    Message('Stock will be reserved for Sales Lines');
+                    SalesLine.Reset;
+                    SalesLine.Setrange(SalesLine."Document Type", Rec."Document Type");
+                    SalesLine.Setrange(SalesLine."Document No.", Rec."No.");
+                    SalesLine.Setrange(SalesLine.Type, SalesLine.Type::Item);
+                    SalesLine.SetFilter(SalesLine.Quantity, '<>%1', 0);
+                    if SalesLine.findset then
+                        repeat
+                            if Item.Get(SalesLine."No.") then begin
+                                if Item.Type = Item.Type::Inventory then
+                                    SalesLine.AutoReserve();
+                            end;
+                        until SalesLine.Next() = 0;
+                end;
+
+                if Rec."Order Status" <> xRec."Order Status" then
+                    if xRec."Order Status" = xrec."Order Status"::"7 Packed" then
+                        Message('Reservations on the lines will have to be cancelled manually');
+            end;
         }
         field(50101; Documents; Text[500])
         {
@@ -64,15 +89,47 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
             OptionMembers = "",Cash,"Credit Refund";
             DataClassification = CustomerContent;
         }
-        field(50111; "Quote Reason Code"; Enum "Sales Quote Reason")
+        field(50111; "Method Of Enquiry"; Enum "Method Of Enquiry")
         {
             DataClassification = CustomerContent;
         }
-        field(50112; "Method Of Enquiry"; Enum "Method Of Enquiry")
+        field(50121; "Lost Opportunity"; Boolean)
         {
             DataClassification = CustomerContent;
         }
+        field(50122; "Quote Reason Code"; Enum "Sales Lost Reason")
+        {
+            DataClassification = CustomerContent;
+        }
+
     }
+
+    var
+        DimMgt: Codeunit DimensionManagement;
+
+    procedure GetTotalSalesPaid() TotalPaid: Decimal
+    var
+        SalesPayments: Record "Sales Payments";
+    begin
+        TotalPaid := "Amount Paid";
+        if Rec."No." <> '' then begin
+            SalesPayments.Reset;
+            SalesPayments.Setrange(SalesPayments."Document Type", Rec."Document Type");
+            SalesPayments.Setrange(SalesPayments."Document No.", Rec."No.");
+            SalesPayments.Setrange(SalesPayments."Apply to this Invoice", True);
+            if SalesPayments.findset then
+                repeat
+                    TotalPaid := TotalPaid + SalesPayments."Amount Paid";
+                until SalesPayments.Next() = 0;
+        end;
+        exit(TotalPaid);
+    end;
+
+    procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
+    begin
+        DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
+    end;
+
     trigger OnAfterInsert()
     var
         GenLedSetup: Record "General Ledger Setup";

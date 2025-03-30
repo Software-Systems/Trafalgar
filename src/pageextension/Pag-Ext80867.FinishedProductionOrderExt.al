@@ -1,4 +1,4 @@
-pageextension 80867 PagExtFinisedProductionOrder extends "Finished Production Order"
+pageextension 80867 PagExtFinishedProductionOrder extends "Finished Production Order"
 {
     layout
     {

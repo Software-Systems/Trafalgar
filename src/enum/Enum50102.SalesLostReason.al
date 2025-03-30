@@ -1,4 +1,4 @@
-enum 50102 "Sales Quote Reason"
+enum 50102 "Sales Lost Reason"
 {
     Extensible = true;
 

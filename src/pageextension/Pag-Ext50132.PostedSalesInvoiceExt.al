@@ -10,6 +10,7 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
             {
                 ApplicationArea = all;
             }
+            /*
             field("CC Processed By"; Rec."CC Processed By")
             {
                 ApplicationArea = All;
@@ -30,6 +31,7 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the CC Machine field.', Comment = '%';
             }
+            */
             field("Created By"; Rec."Created By")
             {
                 ApplicationArea = All;
@@ -45,6 +47,23 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Quote Created By field.', Comment = '%';
                 Editable = false;
+            }
+            field(GetTotalSalesPaid; Rec.GetTotalSalesPaid())
+            {
+                Caption = 'Total Paid';
+                Style = StrongAccent;
+                ApplicationArea = All;
+                trigger OnDrillDown()
+                var
+                    SalesPayments: Record "Sales Payments";
+                begin
+                    SalesPayments.Reset;
+                    SalesPayments.Setrange(SalesPayments."Document Type", SalesPayments."Document Type"::Order);
+                    SalesPayments.Setrange(SalesPayments."Document No.", Rec."Order No.");
+                    SalesPayments.Setrange(SalesPayments."Apply to this Invoice", False);
+                    if SalesPayments.findset then
+                        Page.Run(Page::"Sales Payments", SalesPayments);
+                end;
             }
         }
     }

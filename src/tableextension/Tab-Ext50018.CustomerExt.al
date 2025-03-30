@@ -40,7 +40,7 @@ tableextension 50018 TabExtCustomer extends Customer
             CalcFormula = count("Sales Header" where(
                     "Document Type" = const(Quote),
                     "Sell-to Customer No." = field("No."),
-                    "Quote Reason Code" = filter(" ")
+                    "Lost Opportunity" = const(False)
                     ));
             Editable = false;
             FieldClass = FlowField;
@@ -50,7 +50,7 @@ tableextension 50018 TabExtCustomer extends Customer
             CalcFormula = count("Sales Header" where(
                     "Document Type" = const(Quote),
                     "Sell-to Customer No." = field("No."),
-                    "Quote Reason Code" = filter(<> " ")
+                    "Lost Opportunity" = const(True)
                     ));
             Editable = false;
             FieldClass = FlowField;

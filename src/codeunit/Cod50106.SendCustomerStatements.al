@@ -53,18 +53,19 @@ codeunit 50106 SendCustomerStatements
     begin
         if RecipientEmailNotValid(Customer) then
             exit;
-        Recipient.Add(GetReceipientEmail(Customer));
+        //Recipient.Add(GetReceipientEmail(Customer));
         //EmailMessage.AddRecipient(RecipientType::Cc, 'nikhils@softwaresystems.com.au');
         Subject := StrSubstNo(SubjectTxt, Customer."No.");
         GetBodyTextFromStatementReport(Customer, BodyTxt);
-        EmailMessage.Create(Recipient, Subject, BodyTxt, true);
+        EmailMessage.Create(Customer."Accounts Email Address", Subject, BodyTxt, true);
         GetStatementAttachment(Customer, EmailMessage, ParOpenOnly, ParStartDate, ParEndDate);
         SendEmail(EmailMessage);
     end;
 
     local procedure RecipientEmailNotValid(Customer: Record Customer): Boolean
     begin
-        if Customer."E-Mail" = '' then
+        //if Customer."E-Mail" = '' then **** Requested on 3rd March 2025, Documents that need to be sent to the ‘Accounts Email Address’ from the Customer Card:
+        if Customer."Accounts Email Address" = '' then
             exit(true);
     end;
 
@@ -117,7 +118,9 @@ codeunit 50106 SendCustomerStatements
     local procedure GetReceipientEmail(Customer: Record Customer): Text[80]
     begin
         if Customer."Accounts Email Address" <> '' then
-            exit(Customer."E-Mail");
+            exit(Customer."Accounts Email Address");//exit(Customer."E-Mail");
+        //Requested on 03rd March 2025
+        //Documents that need to be sent to the ‘Accounts Email Address’ from the Customer Card:
     end;
 
     local procedure GetBodyTextFromStatementReport(Customer: Record Customer; var _TextBody: Text)

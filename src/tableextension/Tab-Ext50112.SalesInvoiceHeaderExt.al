@@ -63,13 +63,35 @@ tableextension 50112 TabExtSalesInvoiceHeader extends "Sales Invoice Header"
             OptionMembers = "",Cash,"Credit Refund";
             DataClassification = CustomerContent;
         }
-        field(50111; "Quote Reason Code"; Enum "Sales Quote Reason")
+        field(50111; "Method Of Enquiry"; Enum "Method Of Enquiry")
         {
             DataClassification = CustomerContent;
         }
-        field(50112; "Method Of Enquiry"; Enum "Method Of Enquiry")
+        field(50121; "Lost Opportunity"; Boolean)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(50122; "Quote Reason Code"; Enum "Sales Lost Reason")
         {
             DataClassification = CustomerContent;
         }
     }
+
+    procedure GetTotalSalesPaid() TotalPaid: Decimal
+    var
+        SalesPayments: Record "Sales Payments";
+    begin
+        TotalPaid := "Amount Paid";
+        if Rec."Order No." <> '' then begin
+            SalesPayments.Reset;
+            SalesPayments.Setrange(SalesPayments."Document Type", SalesPayments."Document Type"::Order);
+            SalesPayments.Setrange(SalesPayments."Document No.", Rec."Order No.");
+            SalesPayments.Setrange(SalesPayments."Apply to this Invoice", True);
+            if SalesPayments.findset then
+                repeat
+                    TotalPaid := TotalPaid + SalesPayments."Amount Paid";
+                until SalesPayments.Next() = 0;
+        end;
+        exit(TotalPaid);
+    end;
 }

@@ -8,14 +8,16 @@ codeunit 50108 SendVendorRemittance
         Subject: Text;
         BodyTxt: Text;
         SubjectTxt: Label 'Vendor Remittance Advice %1', Comment = '%1= Statement No.';
-
+        Vendor: Record Vendor;
     begin
         if RecipientEmailNotValid(GenJnlline."Account No.") then
             exit;
-        Recipient.Add(GetReceipientEmail(GenJnlline."Account No."));
+
+        if Vendor.Get(GenJnlline."Account No.") then;
+        //Recipient.Add(GetReceipientEmail(GenJnlline."Account No."));
         Subject := StrSubstNo(SubjectTxt, GenJnlline."Document No.");
         GetBodyTextFromStatementReport(GenJnlline."Account No.", BodyTxt);
-        EmailMessage.Create(Recipient, Subject, BodyTxt, true);
+        EmailMessage.Create(Vendor."Account E-Mail", Subject, BodyTxt, true);
         GetStatementAttachment(GenJnlline, EmailMessage);
         SendEmail(EmailMessage);
     end;
@@ -25,7 +27,9 @@ codeunit 50108 SendVendorRemittance
         Vendor: Record Vendor;
     begin
         Vendor.Get(VendorNo);
-        if Vendor."E-Mail" = '' then
+        //if Vendor."E-Mail" = '' then
+        //Requested on 03rd March 2025, Documents that need to be sent to the ‘Accounts Email Address’ from the Vendor Card:
+        if Vendor."Account E-Mail" = '' then
             exit(true);
     end;
 
@@ -34,8 +38,14 @@ codeunit 50108 SendVendorRemittance
         Vendor: Record Vendor;
     begin
         Vendor.Get(VendorNo);
+        if Vendor."Account E-Mail" <> '' then
+            exit(Vendor."Account E-Mail");
+        /*
+        Requested on 03rd March 2025, Documents that need to be sent to the ‘Accounts Email Address’ from the Vendor Card:
+
         if Vendor."E-Mail" <> '' then
             exit(Vendor."E-Mail");
+        */
     end;
 
     local procedure GetStatementAttachment(GenJnlLine: Record "Gen. Journal Line"; var EmailMessage: Codeunit "Email Message")

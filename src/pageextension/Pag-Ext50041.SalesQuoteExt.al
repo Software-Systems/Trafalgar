@@ -18,10 +18,21 @@ pageextension 50041 PagExtSalesQuote extends "Sales Quote"
                 ToolTip = 'Specifies the value of the Quote Created By field.', Comment = '%';
                 Editable = false;
             }
+            field("Lost Opportunity"; Rec."Lost Opportunity")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Lost Opportunity field.', Comment = '%';
+                trigger OnValidate()
+                begin
+                    CurrPage.Update();
+                end;
+            }
             field("Quote Reason Code"; Rec."Quote Reason Code")
             {
                 ApplicationArea = All;
-                ToolTip = 'Specifies the value of the Quote Reason Code field.', Comment = '%';
+                Caption = 'Lost Reason'; // Updated caption
+                Editable = Rec."Lost Opportunity";
+                ToolTip = 'Specifies the value of the Lost Reason field.', Comment = '%';
             }
         }
     }
@@ -157,11 +168,18 @@ pageextension 50041 PagExtSalesQuote extends "Sales Quote"
     end;
 
     trigger OnAfterGetRecord()
+    var
+        Customer: Record Customer;
+        TrafalgarGenCodeunit: Codeunit "Trafalgar General Codeunit";
     begin
         NoStockMessage := Rec.CheckInStockQuantity;
-        if Rec."No." <> xRec."No." then
+        if Rec."No." <> xRec."No." then begin
             if NoStockMessage <> '' then
                 Message('%1', NoStockMessage);
+
+            if Customer.Get(Rec."Bill-to Customer No.") then
+                TrafalgarGenCodeunit.PopUpCustomerImportantNotes(Customer."Important Notes");
+        end;
     end;
 
     var

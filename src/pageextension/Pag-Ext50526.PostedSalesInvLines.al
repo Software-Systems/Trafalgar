@@ -9,11 +9,6 @@ pageextension 50526 PagExtPostedSalesInvLines extends "Posted Sales Invoice Line
                 Caption = 'Customer Name';
                 ApplicationArea = all;
             }
-            field("Product Code"; Rec."Product Code")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Specifies the value of the Product Code field.', Comment = '%';
-            }
             field("Order No."; Rec."Order No.")
             {
                 ApplicationArea = All;
@@ -23,6 +18,19 @@ pageextension 50526 PagExtPostedSalesInvLines extends "Posted Sales Invoice Line
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the MyField field.', Comment = '%';
+            }
+        }
+        addafter("No.")
+        {
+            field("Product Code"; Rec."Product Code")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Product Code field.';
+            }
+            field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Shortcut Dimension 6 Code field.', Comment = '%';
             }
         }
     }

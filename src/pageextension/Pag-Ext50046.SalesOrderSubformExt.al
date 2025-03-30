@@ -16,12 +16,20 @@ pageextension 50046 PagExtSalesOrderSubform extends "Sales Order Subform"
         }
         addafter(Quantity)
         {
-            field("In Stock Qty"; Rec.GetInStockQuantity())
+            field("In Stock Qty"; Rec.GetInStockQuantity)
             {
                 ApplicationArea = all;
                 DecimalPlaces = 0 : 2;
                 Style = Strong;
             }
+            /*
+            field("Available Qty"; Rec.GetProjAvailableBalance)
+            {
+                ApplicationArea = all;
+                DecimalPlaces = 0 : 2;
+                Style = Strong;
+            }
+            */
         }
         modify("Line No.")
         {

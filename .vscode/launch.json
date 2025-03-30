@@ -5,15 +5,15 @@
             "name": "Trafalgar Sandbox DEV",
             "request": "launch",
             "type": "al",
+            "tenant":"1949af70-dfa8-4f47-8d72-f0df75f3efb3",
             "environmentType": "Sandbox",
             "environmentName": "DEV24",
             "breakOnError": "All",
             "startupObjectType": "Page",
-            "startupObjectId":  98,
+            "startupObjectId":9305,
             "launchBrowser": true,
             "enableLongRunningSqlStatements": true,
-            "enableSqlInformationDebugger": true,
-            "tenant":"1949af70-dfa8-4f47-8d72-f0df75f3efb3",
+            "enableSqlInformationDebugger": true,          
             "schemaUpdateMode": "ForceSync"
         }
     ]

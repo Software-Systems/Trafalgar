@@ -276,6 +276,9 @@ report 50104 "Trafalgar Sales - Invoice"
             column(DocumentNo_Lbl; InvNoLbl)
             {
             }
+            column(QuoteNo; "Quote No.")
+            {
+            }
             column(OrderNo; "Order No.")
             {
             }
@@ -603,7 +606,7 @@ report 50104 "Trafalgar Sales - Invoice"
                 column(TotalAmountIncl_VAT; Format(TotalAmountInclVAT, 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, Header."Currency Code")))
                 {
                 }
-                column(Payment_Amount; Format(Header."Amount Paid", 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, Header."Currency Code")))
+                column(Payment_Amount; Format(Header.GetTotalSalesPaid, 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, Header."Currency Code")))
                 {
                 }
 
