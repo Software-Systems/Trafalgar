@@ -10,7 +10,6 @@ pageextension 50021 PagExtCustomerCard extends "Customer Card"
                 ToolTip = 'Specifies the value of the Shortcut Dimension 6 Code field.', Comment = '%';
             }
         }
-        // Add changes to page layout here
         modify("VAT Bus. Posting Group")
         {
             ShowMandatory = true;
@@ -64,12 +63,34 @@ pageextension 50021 PagExtCustomerCard extends "Customer Card"
                 ToolTip = 'Specifies the value of the Account E-Mail field.', Comment = '%';
             }
         }
+        addafter(General)
+        {
+            part(UserTaskLines; "TG User Task Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Customer No." = field("No.");
+                UpdatePropagation = Both;
+            }
+        }
     }
 
     actions
     {
         addafter(Email)
         {
+            /*
+            action(OpenDocument)
+            {
+                Caption = 'Open Docs';
+                Image = OpenJournal;
+                ToolTip = 'Open Documents.';
+                ApplicationArea = all;
+                trigger OnAction()
+                begin
+                    Rec.SharepointOpenDocsCustomer;
+                end;
+            }
+            */
             action(HistoricalSales)
             {
                 ApplicationArea = All;
@@ -126,7 +147,9 @@ pageextension 50021 PagExtCustomerCard extends "Customer Card"
             actionref(EmailStatementAll_Promoted; EmailstatementAll)
             {
             }
-
+            // actionref("Open_Docs_Promoted"; OpenDocument)
+            // {
+            // }
         }
     }
     var

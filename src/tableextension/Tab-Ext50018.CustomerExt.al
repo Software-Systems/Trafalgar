@@ -56,4 +56,15 @@ tableextension 50018 TabExtCustomer extends Customer
             FieldClass = FlowField;
         }
     }
+
+    /* procedure SharepointOpenDocsCustomer()
+     var
+         GLSetup: Record "General Ledger Setup";
+     begin
+         if GLSetup.get then begin
+             GLSetup.TestField("SharePoint Customer Path");
+             Hyperlink(GLSetup."SharePoint Customer Path" + Rec."No.");
+         end;
+     end;
+   */
 }

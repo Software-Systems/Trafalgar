@@ -20,6 +20,13 @@ pageextension 50381 PagExtApplyBankAccLedgEntries extends "Apply Bank Acc. Ledge
     begin
         Clear(CCMachine);
         Clear(CCType);
+        SalesPayments.Reset;
+        SalesPayments.Setrange(SalesPayments."Document No.", Rec."External Document No.");
+        if SalesPayments.FindFirst() then begin
+            CCType := Format(SalesPayments."Card Type");
+            CCMachine := SalesPayments.Machine;
+        end;
+        /*
         SalesHeader.Reset();
         SalesHeader.SetRange("No.", rec."External Document No.");
         if SalesHeader.FindFirst() then begin
@@ -33,6 +40,7 @@ pageextension 50381 PagExtApplyBankAccLedgEntries extends "Apply Bank Acc. Ledge
                 CCMachine := SalesInvHeader."CC Machine";
             end;
         end;
+        */
     end;
 
     var
@@ -40,4 +48,5 @@ pageextension 50381 PagExtApplyBankAccLedgEntries extends "Apply Bank Acc. Ledge
         CCMachine: Text;
         SalesHeader: Record "Sales Header";
         SalesInvHeader: Record "Sales Invoice Header";
+        SalesPayments: Record "Sales Payments";
 }

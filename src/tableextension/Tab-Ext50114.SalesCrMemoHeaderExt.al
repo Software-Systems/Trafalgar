@@ -75,5 +75,9 @@ tableextension 50114 TabExtSalesCrMemoHeader extends "Sales Cr.Memo Header"
         {
             DataClassification = CustomerContent;
         }
+        field(50131; "Packed Location"; Text[100])
+        {
+            DataClassification = CustomerContent;
+        }
     }
 }

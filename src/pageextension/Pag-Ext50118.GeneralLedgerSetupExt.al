@@ -7,6 +7,11 @@ pageextension 50118 PagExtGeneralLedgerSetup extends "General Ledger Setup"
         {
             group(Sharepoint)
             {
+                field("SharePoint User Tasks Path"; Rec."SharePoint User Tasks Path")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the User Task Document Path field.', Comment = '%';
+                }
                 field("SharePoint Sales Document Path"; Rec."SharePoint Document Path")
                 {
                     ApplicationArea = All;
@@ -44,6 +49,7 @@ pageextension 50118 PagExtGeneralLedgerSetup extends "General Ledger Setup"
                     GLSetup: Record "General Ledger Setup";
                     SalesHeader: Record "Sales Header";
                     PurchaseHeader: Record "Purchase Header";
+                    UserTask: Record "User Task"; //FV 150425
                 begin
                     GLSetup.Get();
 
@@ -62,6 +68,13 @@ pageextension 50118 PagExtGeneralLedgerSetup extends "General Ledger Setup"
                             PurchaseHeader.Documents := GLSetup."SharePoint Purch Document Path" + '' + PurchaseHeader."No.";
                             PurchaseHeader.Modify();
                         until PurchaseHeader.Next = 0;
+                    //FV 150425
+                    UserTask.Reset;
+                    if UserTask.FindSet() then
+                        repeat
+                            UserTask.Documents := GLSetup."SharePoint User Tasks Path" + '' + Format(UserTask.ID);
+                            UserTask.Modify();
+                        until UserTask.Next = 0;
 
                     Message('Done');
 

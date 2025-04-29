@@ -14,6 +14,11 @@ pageextension 59300 PagExtSalesQuotes extends "Sales Quotes"
                 ToolTip = 'Specifies the value of the Lost Opportunity field.', Comment = '%';
             }
         }
+        modify("Assigned User ID")
+        {
+            Visible = True;
+        }
+        moveafter("Salesperson Code"; "Assigned User ID")
     }
 
     actions

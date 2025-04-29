@@ -53,17 +53,6 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
                 Caption = 'Total Paid';
                 Style = StrongAccent;
                 ApplicationArea = All;
-                trigger OnDrillDown()
-                var
-                    SalesPayments: Record "Sales Payments";
-                begin
-                    SalesPayments.Reset;
-                    SalesPayments.Setrange(SalesPayments."Document Type", SalesPayments."Document Type"::Order);
-                    SalesPayments.Setrange(SalesPayments."Document No.", Rec."Order No.");
-                    SalesPayments.Setrange(SalesPayments."Apply to this Invoice", False);
-                    if SalesPayments.findset then
-                        Page.Run(Page::"Sales Payments", SalesPayments);
-                end;
             }
         }
     }
@@ -102,6 +91,13 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
                     end;
                 end;
             }
+            action("Take Payment")
+            {
+                Image = Payment;
+                ApplicationArea = all;
+                RunObject = Page "Sales Payments";
+                RunPageLink = "Document No." = field("Order No.");
+            }
         }
         addafter("ChangePaymentService_Promoted")
         {
@@ -109,6 +105,9 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
             {
             }
             actionref("Change_Doc_Promoted"; EditExtDocNo)
+            {
+            }
+            actionref(TakePayment_Promoted; "Take Payment")
             {
             }
         }

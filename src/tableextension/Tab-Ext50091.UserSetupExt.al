@@ -22,5 +22,13 @@ tableextension 50091 TabExtUserSetup extends "User Setup"
             Caption = 'Can Release Order for Overdue Cust Entries';
             DataClassification = CustomerContent;
         }
+        field(50110; "Sales Doc Assigned"; Boolean)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(50120; "Can Apply Generic Discounts"; Boolean)
+        {
+            DataClassification = CustomerContent;
+        }
     }
 }

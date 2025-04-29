@@ -24,7 +24,7 @@ enum 50103 "Method Of Enquiry"
     }
     value(50; Techical)
     {
-        Caption = 'Techical';
+        Caption = 'Technical';
     }
     value(60; "Hubspot Conversion")
     {

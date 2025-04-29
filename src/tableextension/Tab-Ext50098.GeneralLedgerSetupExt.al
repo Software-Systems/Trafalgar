@@ -18,6 +18,11 @@ tableextension 50098 TabExtGeneralLedgerSetup extends "General Ledger Setup"
             DataClassification = CustomerContent;
             TableRelation = Location;
         }
+        field(50110; "SharePoint User Tasks Path"; Text[500])
+        {
+            Caption = 'User Tasks Document Path';
+            DataClassification = CustomerContent;
+        }
         field(50200; "SharePoint Purch Document Path"; Text[500])
         {
             Caption = 'Purchase Document Path';

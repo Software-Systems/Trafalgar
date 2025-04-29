@@ -24,6 +24,16 @@ pageextension 50119 PagExtUserSetup extends "User Setup"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Can Release Order for Overdue Cust Entries field.', Comment = '%';
             }
+            field("Sales Doc Assigned"; Rec."Sales Doc Assigned")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Sales Doc Assigned field.', Comment = '%';
+            }
+            field("Can Apply Generic Discounts"; Rec."Can Apply Generic Discounts")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Can Apply Generic Discounts field.', Comment = '%';
+            }
         }
     }
 }

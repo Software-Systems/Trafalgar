@@ -75,6 +75,10 @@ tableextension 50112 TabExtSalesInvoiceHeader extends "Sales Invoice Header"
         {
             DataClassification = CustomerContent;
         }
+        field(50131; "Packed Location"; Text[100])
+        {
+            DataClassification = CustomerContent;
+        }
     }
 
     procedure GetTotalSalesPaid() TotalPaid: Decimal
@@ -84,7 +88,7 @@ tableextension 50112 TabExtSalesInvoiceHeader extends "Sales Invoice Header"
         TotalPaid := "Amount Paid";
         if Rec."Order No." <> '' then begin
             SalesPayments.Reset;
-            SalesPayments.Setrange(SalesPayments."Document Type", SalesPayments."Document Type"::Order);
+            //SalesPayments.Setrange(SalesPayments."Document Type", SalesPayments."Document Type"::Order);
             SalesPayments.Setrange(SalesPayments."Document No.", Rec."Order No.");
             SalesPayments.Setrange(SalesPayments."Apply to this Invoice", True);
             if SalesPayments.findset then

@@ -6,12 +6,39 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
         modify("Amount Paid")
         {
             Editable = False;
+            Visible = False;
+        }
+        modify("Payment Processed")
+        {
+            Editable = False;
+            Visible = False;
+        }
+        modify("Assigned User ID")
+        {
+            Visible = False;
+            Editable = False;
+        }
+        addafter("Salesperson Code")
+        {
+            field(AssignedUserID; AssignedUserID)
+            {
+                Caption = 'Assigned User ID';
+                ApplicationArea = all;
+                Style = StrongAccent;
+                TableRelation = "User Setup"."User ID" where("Sales Doc Assigned" = const(true));
+                ShowMandatory = true;
+                trigger OnValidate()
+                begin
+                    Rec."Assigned User ID" := AssignedUserID;
+                end;
+            }
         }
         addafter(Status)
         {
             field("Method Of Enquiry"; Rec."Method Of Enquiry")
             {
                 ApplicationArea = All;
+                ShowMandatory = true;
             }
             field("Order Status"; Rec."Order Status")
             {
@@ -21,32 +48,15 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
                     CurrPage.Update();
                 end;
             }
+            field("Packed Location"; Rec."Packed Location")
+            {
+                ApplicationArea = all;
+                Editable = false;
+            }
             field(Documents; Rec.Documents)
             {
                 ApplicationArea = all;
             }
-            /*
-            field("CC Processed By"; Rec."CC Processed By")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Specifies the value of the CC Processed By field.', Comment = '%';
-            }
-            field("CC Payment Date"; Rec."CC Payment Date")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Specifies the value of the CC Payment Date field.', Comment = '%';
-            }
-            field("CC Card Type"; Rec."CC Card Type")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Specifies the value of the CC Card Type field.', Comment = '%';
-            }
-            field("CC Machine"; Rec."CC Machine")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Specifies the value of the CC Machine field.', Comment = '%';
-            }
-            */
             field("Created By"; Rec."Created By")
             {
                 ApplicationArea = All;
@@ -218,24 +228,7 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
                 end;
             }
         }
-        addbefore("Send IC Sales Order")
-        {
-            /*
-            action(PostPayReceipt)
-            {
-                Caption = 'Post Pay Receipt';
-                ApplicationArea = all;
-                Image = PostDocument;
-                ToolTip = 'Post Pay Receipt';
-                trigger OnAction()
-                begin
-                    if Rec."Payment Processed" then
-                        Error('You have already processed the payment.');
-                    CreateandPostPayReceipt();
-                end;
-            }
-            */
-        }
+
         addafter(SendEmailConfirmation_Promoted)
         {
             actionref(EmailProforma_Promoted; SendProformaByEmail)
@@ -247,11 +240,6 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
             actionref("Open_Docs_Promoted"; OpenDocument)
             {
             }
-            /*
-            actionref("PostPayReceipt_Promoted"; PostPayReceipt)
-            {
-            }
-            */
             actionref(TakePayment_Promoted; "Take Payment")
             {
             }
@@ -274,6 +262,7 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
         AmountEdit: Boolean;
         NoStockMessage: Text;
         ShortcutDimCode: array[8] of Code[20];
+        AssignedUserID: Code[50];
 
     local procedure ItemInventoryCheck(var SalesLine: Record "Sales Line")
     var
@@ -445,60 +434,7 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
         end;
 
         Rec.ShowShortcutDimCode(ShortcutDimCode);
-    end;
 
-    procedure CreateandPostPayReceipt()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        NoSeries: Record "No. Series";
-        NoSeriesCU: Codeunit "No. Series";
-        Dialog: Dialog;
-        GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
-    begin
-
-        if Rec."Amount Paid" = 0 then
-            Error('You must specify amount paid');
-
-        if Confirm('Do you want to record $ ' + Format(Rec."Amount Paid") + ' as a customer payment?', false) then begin
-            GenJnlLine.Reset();
-            GenJnlLine.SetRange("Journal Template Name", 'GENERAL');
-            GenJnlLine.SetRange("Journal Batch Name", 'SYSTEM');
-            GenJnlLine.SetRange("Line No.", 10000);
-            if GenJnlLine.FindFirst() then
-                GenJnlLine.Delete();
-            GenJnlLine.Init();
-            GenJnlLine.Validate("Journal Template Name", 'GENERAL');
-            GenJnlLine.Validate("Journal Batch Name", 'SYSTEM');
-            NoSeries.Reset();
-            NoSeries.SetRange(NoSeries.Code, 'GJNL-GENSYS');
-            if NoSeries.FindFirst() then begin
-                GenJnlLine.Validate("Document No.", NoSeriesCU.GetNextNo(NoSeries.Code));
-            end;
-            GenJnlLine.Validate("Line No.", 10000);
-            GenJnlLine.Validate("Source Code", 'GENJNL');
-            GenJnlLine.Insert();
-            /*
-            Fanie's Request - 05th March 2025 (Move this code from SmallChanges.app)
-            On A Sales Order, On Post Pay Receipt, 
-            If the CC Payment Date Field has a value, use that field, 
-            if Not, use the Posting Date of the Sale order
-            */
-            if Rec."CC Payment Date" = 0D Then
-                GenJnlLine.Validate("Posting Date", Today)
-            else
-                GenJnlLine.Validate("Posting Date", Rec."CC Payment Date");
-            GenJnlLine.Validate("Document Type", GenJnlLine."Document Type"::Payment);
-            GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Customer);
-            GenJnlLine.Validate("Account No.", Rec."Bill-to Customer No.");
-            GenJnlLine.Validate(Amount, Rec."Amount Paid" * -1);
-            GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
-            GenJnlLine.Validate("Bal. Account No.", 'CBA');
-            GenJnlLine.Validate("External Document No.", Rec."No.");
-            GenJnlLine.Modify();
-            GenJnlPostBatch.Run(GenJnlLine);
-            Rec."Payment Processed" := true;
-            Rec.Modify();
-            Message('Customer payment of $' + Format(Rec."Amount Paid") + ' has been recorded. ');
-        end;
+        AssignedUserID := Rec."Assigned User ID";
     end;
 }

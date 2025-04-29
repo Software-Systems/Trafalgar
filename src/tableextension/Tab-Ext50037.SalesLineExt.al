@@ -32,7 +32,7 @@ tableextension 50037 TabExtSalesLine extends "Sales Line"
         }
     }
 
-    procedure GetInStockQuantity_OLD() TotalQty: Decimal
+    procedure GetInStockQuantity() TotalQty: Decimal
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         LocationCode: Text;
@@ -51,7 +51,7 @@ tableextension 50037 TabExtSalesLine extends "Sales Line"
         Exit(TotalQty);
     end;
 
-    procedure GetInStockQuantity() ProjAvailableBalance: Decimal
+    procedure GetInStockQuantity_NEW() ProjAvailableBalance: Decimal
     var
         Item: Record Item;
         GrossRequirement: Decimal;

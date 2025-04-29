@@ -6,6 +6,7 @@ codeunit 50101 "Extention for Sales Subscriber"
         ProductionOrder: Record "Production Order";
         NotAllowedErr: Label 'There are Make to Order items on this sale, that have not been planned, please plan them, and release again (This order has not released).';
         CCDetailsErr: Label 'Cannot release! The Credit Card information is not updated.';
+        SalesPayments: Record "Sales Payments";
     begin
         SalesLine.Reset();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -21,16 +22,34 @@ codeunit 50101 "Extention for Sales Subscriber"
                         Message(NotAllowedErr);
                 end;
             until SalesLine.Next() = 0;
+        /*
+        Fanie's request to disable this error message on 07th April 2025 (Trafalgar Tasks 07/04/2025)
+
         if SalesHeader."Payment Terms Code" = 'CIA' then
-            if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+                //New One
+                SalesPayments.Reset;
+                SalesPayments.Setrange(SalesPayments."Document Type", SalesHeader."Document Type");
+                SalesPayments.Setrange(SalesPayments."Document No.", SalesHeader."No.");
+                if SalesPayments.FindSet() then
+                    repeat
+                        if (SalesPayments."Machine" = '') or (SalesPayments."Processed By" = '')
+                        or (SalesPayments."Payment Date" = 0D) or (SalesPayments."Card Type" = SalesPayments."Card Type"::" ") then
+                            Error(CCDetailsErr);
+                    until SalesPayments.Next() = 0;
+
+                //Old One
                 if (SalesHeader."CC Machine" = '') or (SalesHeader."CC Processed By" = '')
-                    or (SalesHeader."CC Payment Date" = 0D) or (SalesHeader."CC Card Type" = '') then
+                or (SalesHeader."CC Payment Date" = 0D) or (SalesHeader."CC Card Type" = '') then
                     Error(CCDetailsErr);
+            end;        
+        */
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Order", OnBeforeModifySalesOrderHeader, '', false, false)]
     procedure SalesQuoteToOrder_OnBeforeModifySalesOrderHeader(SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
     begin
+        SalesQuoteHeader.CheckTrafalgarMandatoryFields();
         if SalesQuoteHeader."Shipment Date" < Today then begin
             if Confirm('Do you want to update the Shipment Date ?') then
                 SalesOrderHeader."Shipment Date" := TODAY;
@@ -40,6 +59,19 @@ codeunit 50101 "Extention for Sales Subscriber"
             if Confirm('Do you want to update the Delivery Date ?') then
                 SalesOrderHeader."Requested Delivery Date" := TODAY;
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Invoice", OnBeforeInsertSalesInvoiceHeader, '', false, false)]
+    procedure SalesQuotetoInvoice_OnBeforeInsertSalesInvoiceHeader(QuoteSalesHeader: Record "Sales Header")
+    begin
+        QuoteSalesHeader.CheckTrafalgarMandatoryFields();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnBeforePostSalesDoc, '', false, false)]
+    procedure SalesPost_OnBeforePostSalesDoc(var SalesHeader: Record "Sales Header")
+    begin
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then
+            SalesHeader.CheckTrafalgarMandatoryFields();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Mgt.", OnAfterCalculateShipBillToOptions, '', false, false)]
@@ -135,7 +167,7 @@ codeunit 50101 "Extention for Sales Subscriber"
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPCT: Decimal;
         VATAMount: Decimal;
-        NotAllowedtoRelease: Label 'The payment amount must be equal to the order amount, and the payment processed must be true.';
+        NotAllowedtoRelease: Label 'This order cannot be released until the Total Amount has been paid.';
         //SG Start
         ExceededOverdueEntries: Label 'This Customer Has Overdue Entries, Or Is Over Their Credit Limit. This Order Cannot Be Released';
         ConfirmationOverdueEntries: Label 'This Customer Has Overdue Entries, Or Is Over Their Credit Limit. Do You Still Want to Release This Order ?';
@@ -144,13 +176,14 @@ codeunit 50101 "Extention for Sales Subscriber"
     begin
         if UserSetup.Get(UserId) then begin
             if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+                SalesHeader.CalcFields(SalesHeader.Amount, SalesHeader."Amount Including VAT");
                 if not UserSetup."Can Always Release CIA orders" then begin
                     SalesLine.SetRange("Document No.", SalesHeader."No.");
                     SalesLine.SetRange(Type, SalesLine.Type::Item);
                     if SalesLine.FindSet() then
                         DocumentTotal.CalculateSalesSubPageTotals(SalesHeader, SalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
                     if (SalesHeader."Payment Terms Code" = 'CIA') then
-                        if (SalesHeader."Amount Paid" <> SalesLine."Amount Including VAT") or (SalesHeader."Payment Processed" = false) then
+                        if (SalesHeader.GetTotalSalesPaid() < SalesHeader."Amount Including VAT") then
                             Error(NotAllowedtoRelease);
                 end;
 
@@ -412,6 +445,37 @@ codeunit 50101 "Extention for Sales Subscriber"
                 end;
             end;
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line Discount", OnBeforeValidateEvent, "Line Discount %", true, true)]
+    local procedure SalesLineDiscount_OnBeforeValidateEvent_LineDiscountPct(var Rec: Record "Sales Line Discount")
+    var
+        TrafalgarGeneralCodeunit: Codeunit "Trafalgar General Codeunit";
+    begin
+        if Rec."Sales Type" = Rec."Sales Type"::"All Customers" then
+            if TrafalgarGeneralCodeunit.CheckUserCanApplyGenericDiscount() = false then
+                Error('You do not have permission to create system wide discounts, please chat to Kate');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnValidateLineDiscountPercentOnAfterTestStatusOpen, '', true, true)]
+    local procedure SalesLine_OnValidateLineDiscountPercentOnAfterTestStatusOpen(CurrentFieldNo: Integer)
+    var
+        TrafalgarGeneralCodeunit: Codeunit "Trafalgar General Codeunit";
+    begin
+        if CurrentFieldNo IN [27, 28] then begin
+            if TrafalgarGeneralCodeunit.CheckUserCanApplyGenericDiscount() = false then
+                Error('You do not have permission to create system wide discounts, please chat to Kate');
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnBeforeUpdateLineDiscPct, '', true, true)]
+    local procedure SalesLine_OnBeforeUpdateLineDiscPct(var SalesLine: Record "Sales Line")
+    var
+        TrafalgarGeneralCodeunit: Codeunit "Trafalgar General Codeunit";
+    begin
+        if TrafalgarGeneralCodeunit.CheckUserCanApplyGenericDiscount() = false then
+            Error('You do not have permission to create system wide discounts, please chat to Kate');
+    end;
+
     /*
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromSalesDocSalesLine, '', false, false)]
     procedure CopyDocumentMgt_OnAfterCopySalesLineFromSalesDocSalesLine(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; IncludeHeader: Boolean; RecalculateLines: Boolean)

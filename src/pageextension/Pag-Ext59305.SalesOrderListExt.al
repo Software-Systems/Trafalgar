@@ -51,10 +51,6 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
         {
             Editable = false;
         }
-        modify("Assigned User ID")
-        {
-            Editable = false;
-        }
         modify("Document Date")
         {
             Editable = false;
@@ -67,6 +63,11 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
         {
             Editable = false;
         }
+        modify("Assigned User ID")
+        {
+            Visible = True;
+        }
+        moveafter("Salesperson Code"; "Assigned User ID")
     }
 
     actions
@@ -105,10 +106,19 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
                     CheckAndUpdateStatus();
                 end;
             }
+            action("Pack Order")
+            {
+                ApplicationArea = all;
+                Image = PutAway;
+                RunObject = Page "TG Sales Order Details";
+            }
         }
         addafter("Create &Warehouse Shipment_Promoted")
         {
             actionref("Update Warehouse Availability_Promoted"; "Update Warehouse Availability")
+            {
+            }
+            actionref(Pack_Order_Promoted; "Pack Order")
             {
             }
         }
@@ -278,8 +288,5 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
     end;
 
     var
-        myInt: Integer;
         StylExpTxt: Text[50];
-
-
 }

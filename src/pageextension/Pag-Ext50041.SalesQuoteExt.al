@@ -2,11 +2,32 @@ pageextension 50041 PagExtSalesQuote extends "Sales Quote"
 {
     layout
     {
+        modify("Assigned User ID")
+        {
+            Visible = False;
+            Editable = False;
+        }
+        addafter("Salesperson Code")
+        {
+            field(AssignedUserID; AssignedUserID)
+            {
+                Caption = 'Assigned User ID';
+                ApplicationArea = all;
+                Style = StrongAccent;
+                TableRelation = "User Setup"."User ID" where("Sales Doc Assigned" = const(true));
+                ShowMandatory = true;
+                trigger OnValidate()
+                begin
+                    Rec."Assigned User ID" := AssignedUserID;
+                end;
+            }
+        }
         addafter(Status)
         {
             field("Method Of Enquiry"; Rec."Method Of Enquiry")
             {
                 ApplicationArea = All;
+                ShowMandatory = true;
             }
             field(Documents; Rec.Documents)
             {
@@ -180,8 +201,10 @@ pageextension 50041 PagExtSalesQuote extends "Sales Quote"
             if Customer.Get(Rec."Bill-to Customer No.") then
                 TrafalgarGenCodeunit.PopUpCustomerImportantNotes(Customer."Important Notes");
         end;
+        AssignedUserID := Rec."Assigned User ID";
     end;
 
     var
         NoStockMessage: Text;
+        AssignedUserID: Code[50];
 }

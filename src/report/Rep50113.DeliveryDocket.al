@@ -169,6 +169,9 @@ report 50113 "Delivery Docket"
             column(DocumentNo; "No.")
             {
             }
+            column(OrderNoBarcodeText; TrafalgarGeneralCodeunit.ConvertToBarcode("No."))
+            {
+            }
             column(CompanyLegalOffice; LegalOfficeTxt)
             {
             }
@@ -550,6 +553,7 @@ report 50113 "Delivery Docket"
         TotalQty: Decimal;
         TotalQtyOrder: Decimal;
         ShowWorkDescription: Boolean;
+        TrafalgarGeneralCodeunit: Codeunit "Trafalgar General Codeunit";
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     var

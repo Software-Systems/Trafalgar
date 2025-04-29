@@ -8,6 +8,7 @@ permissionset 50100 "Trafalgar_Permission"
         table "Historical Purchases" = X,
         table "Historical Sales" = X,
         table "Payment File Data" = X,
+        table "Sales Payments" = X,
         report ChangeDueDate = X,
         report ChangeExtDocNo = X,
         report ChangeExtDocNo_Purch = X,
@@ -42,5 +43,11 @@ permissionset 50100 "Trafalgar_Permission"
         page "Historical Purchases" = X,
         page "Historical Sales" = X,
         page "Lookup Screen" = X,
-        page "Statement Date Period" = X;
+        page "Statement Date Period" = X,
+        tabledata "Sales Payments" = RIMD,
+        report "Trafalgar Sales Quotation" = X,
+        page "Sales Payments" = X,
+        page "TG Sales Order Details" = X,
+        page "TG Packed Orders" = X,
+        page "TG User Task Lines" = X;
 }

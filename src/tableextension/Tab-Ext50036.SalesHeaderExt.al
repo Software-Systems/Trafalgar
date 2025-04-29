@@ -58,6 +58,7 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
             FieldClass = FlowField;
             CalcFormula = lookup(User."User Name" where("User Security ID" = field(SystemModifiedBy)));
         }
+        /*
         field(50105; "CC Payment Date"; Date)
         {
             Caption = 'CC Payment Date';
@@ -78,6 +79,7 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
             Caption = 'CC Machine';
             DataClassification = CustomerContent;
         }
+        */
         field(50109; "Quote Created By"; Text[100])
         {
             Caption = 'Quote Created By';
@@ -101,9 +103,15 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         {
             DataClassification = CustomerContent;
         }
-
+        field(50131; "Packed Location"; Text[100])
+        {
+            DataClassification = CustomerContent;
+        }
+        modify("Assigned User ID")
+        {
+            TableRelation = "User Setup"."User ID" where("Sales Doc Assigned" = const(true));
+        }
     }
-
     var
         DimMgt: Codeunit DimensionManagement;
 
@@ -114,7 +122,6 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         TotalPaid := "Amount Paid";
         if Rec."No." <> '' then begin
             SalesPayments.Reset;
-            SalesPayments.Setrange(SalesPayments."Document Type", Rec."Document Type");
             SalesPayments.Setrange(SalesPayments."Document No.", Rec."No.");
             SalesPayments.Setrange(SalesPayments."Apply to this Invoice", True);
             if SalesPayments.findset then
@@ -168,4 +175,14 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
             RetValue := 'Not Enough Stock For Item Below : ' + TypeHelper.CRLFSeparator() + TypeHelper.CRLFSeparator() + RetValue;
         exit(RetValue);
     end;
+
+    procedure CheckTrafalgarMandatoryFields()
+    begin
+        if Rec."Method Of Enquiry" = Rec."Method Of Enquiry"::" " then
+            Error('Please select Method Of Enquiry in %1 %2', Rec."Document Type", Rec."No.");
+
+        if Rec."Assigned User ID" = '' then
+            Error('Please select Assigned User ID in %1 %2', Rec."Document Type", Rec."No.");
+    end;
+
 }

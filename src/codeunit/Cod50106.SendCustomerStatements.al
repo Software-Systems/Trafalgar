@@ -3,14 +3,15 @@ codeunit 50106 SendCustomerStatements
     trigger OnRun()
     var
         Customer: Record Customer;
-
     begin
         Customer.SetRange("Send Statements", true);
         if Customer.FindSet() then
             repeat
                 Customer.CalcFields("Balance (LCY)");
-                if Customer."Balance (LCY)" <> 0 then
+                if Customer."Balance (LCY)" <> 0 then begin
                     SendCustomerStatement(Customer, True, GetSOADatePeriod(Customer."No.", True), GetSOADatePeriod(Customer."No.", False));
+                    Sleep(4000);
+                end;
             until Customer.Next() = 0;
     end;
 

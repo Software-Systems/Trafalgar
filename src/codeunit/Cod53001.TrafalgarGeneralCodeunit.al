@@ -1,5 +1,17 @@
 codeunit 53001 "Trafalgar General Codeunit"
 {
+    procedure CheckUserCanApplyGenericDiscount(): Boolean
+    var
+        UserSetup: Record "User Setup";
+    begin
+        UserSetup.Reset;
+        UserSetup.Setrange(UserSetup."User ID", UserId);
+        if UserSetup.FindFirst() then
+            exit(UserSetup."Can Apply Generic Discounts")
+        else
+            exit(False)
+    end;
+
     procedure GetUserNameFromSecurityId(ParUserSecurityID: Guid): Code[50]
     var
         User: Record User;
@@ -245,6 +257,24 @@ codeunit 53001 "Trafalgar General Codeunit"
             CustomerNotification.Scope := NotificationScope::LocalScope;
             CustomerNotification.Send();
         end;
+    end;
+
+    procedure ConvertToBarcode(ParText: Text): Text
+    var
+        BarcodeSymbology: Enum "Barcode Symbology";
+        BarcodeFontProvider: Interface "Barcode Font Provider";
+        BarcodeStr: Code[50];
+        RetValueEncodedText: Text;
+    begin
+        RetValueEncodedText := '';
+        if ParText <> '' then begin
+            BarcodeFontProvider := Enum::"Barcode Font Provider"::IDAutomation1D;  //FONT PROVIDER IDAUTOMATION
+            BarcodeSymbology := Enum::"Barcode Symbology"::Code128;                        //SIMBOLOGY - "CODE 128" in this case
+            BarcodeStr := ParText;
+            BarcodeFontProvider.ValidateInput(BarcodeStr, BarcodeSymbology);              //VALIDATE INPUT DATA - NOT MANDATORY
+            RetValueEncodedText := BarcodeFontProvider.EncodeFont(BarcodeStr, BarcodeSymbology);  //ENCODETEXT in Barcode
+        end;
+        Exit(RetValueEncodedText);
     end;
 
 }

@@ -75,5 +75,9 @@ tableextension 50110 TabExtSalesShipmentHeader extends "Sales Shipment Header"
         {
             DataClassification = CustomerContent;
         }
+        field(50131; "Packed Location"; Text[100])
+        {
+            DataClassification = CustomerContent;
+        }
     }
 }
