@@ -88,4 +88,20 @@ page 50108 "Sales Payments"
     begin
         Rec."Apply to this Invoice" := True;
     end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        SalesPayments: Record "Sales Payments";
+    begin
+        SalesPayments.Reset;
+        SalesPayments.Setrange(SalesPayments."Document Type", Rec."Document Type");
+        SalesPayments.Setrange(SalesPayments."Document No.", Rec."Document No.");
+        SalesPayments.Setrange(SalesPayments."Payment Processed", False);
+        if SalesPayments.FindFirst() then begin
+            IF Confirm('Theres is a Payment that has not been processed. Are you sure you want to Navigate away from the Page?') then
+                exit
+            else
+                Error('Please Process The Payment for Line No. %1.', SalesPayments."Line No.");
+        end;
+    end;
 }

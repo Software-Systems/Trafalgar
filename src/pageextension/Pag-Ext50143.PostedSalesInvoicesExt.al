@@ -1,8 +1,8 @@
-pageextension 50144 PagExtPostedSalesCreditMemos extends "Posted Sales Credit Memos"
+pageextension 50143 PagExtPostedSalesInvoices extends "Posted Sales Invoices"
 {
     layout
     {
-        addafter("Sell-to Customer Name")
+        addafter("Order No.")
         {
             field("Assigned User ID"; Rec."Assigned User ID")
             {
@@ -14,10 +14,10 @@ pageextension 50144 PagExtPostedSalesCreditMemos extends "Posted Sales Credit Me
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Method Of Enquiry field.', Comment = '%';
             }
-            field("Sales Return Created By"; Rec."Sales Return Created By")
+            field("Sales Order Created By"; Rec."Sales Order Created By")
             {
                 ApplicationArea = All;
-                ToolTip = 'Specifies the value of the Sales Return Created By field.', Comment = '%';
+                ToolTip = 'Specifies the value of the Sales Order Created By field.', Comment = '%';
             }
         }
     }

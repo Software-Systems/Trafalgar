@@ -14,6 +14,39 @@ pageextension 56630 PagExtSalesReturnOrder extends "Sales Return Order"
                 ApplicationArea = all;
             }
         }
+        modify("Assigned User ID")
+        {
+            Visible = False;
+            Editable = False;
+        }
+        addafter("Salesperson Code")
+        {
+            field(AssignedUserID; AssignedUserID)
+            {
+                Caption = 'Assigned User ID';
+                ApplicationArea = all;
+                Style = StrongAccent;
+                TableRelation = "User Setup"."User ID" where("Sales Doc Assigned" = const(true));
+                ShowMandatory = true;
+                trigger OnValidate()
+                begin
+                    Rec."Assigned User ID" := AssignedUserID;
+                end;
+            }
+        }
+        addafter(Status)
+        {
+            field("Method Of Enquiry"; Rec."Method Of Enquiry")
+            {
+                ApplicationArea = All;
+                ShowMandatory = true;
+            }
+            field("Created By"; Rec."Created By")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Created By field.', Comment = '%';
+            }
+        }
     }
     actions
     {
@@ -38,4 +71,13 @@ pageextension 56630 PagExtSalesReturnOrder extends "Sales Return Order"
             }
         }
     }
+
+    var
+        AssignedUserID: Code[50];
+
+    trigger OnAfterGetRecord()
+    begin
+
+        AssignedUserID := Rec."Assigned User ID";
+    end;
 }

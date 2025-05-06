@@ -79,5 +79,17 @@ tableextension 50114 TabExtSalesCrMemoHeader extends "Sales Cr.Memo Header"
         {
             DataClassification = CustomerContent;
         }
+        field(78010; "Sales Return Created By"; Text[100])
+        {
+            DataClassification = CustomerContent;
+            Editable = False;
+        }
+        field(78020; "Assigned User ID"; Code[50])
+        {
+            Caption = 'Assigned User ID';
+            DataClassification = EndUserIdentifiableInformation;
+            TableRelation = "User Setup";
+
+        }
     }
 }

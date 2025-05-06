@@ -74,6 +74,24 @@ codeunit 50101 "Extention for Sales Subscriber"
             SalesHeader.CheckTrafalgarMandatoryFields();
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnInsertInvoiceHeaderOnAfterSalesInvHeaderTransferFields, '', false, false)]
+    procedure SalesPost_OnInsertInvoiceHeaderOnAfterSalesInvHeaderTransferFields(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        TrafalgarGenCodeunit: Codeunit "Trafalgar General Codeunit";
+    begin
+        SalesInvoiceHeader."Assigned User ID" := SalesHeader."Assigned User ID";
+        SalesInvoiceHeader."Sales Order Created By" := TrafalgarGenCodeunit.GetUserNameFromSecurityId(SalesHeader.SystemCreatedBy);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnInsertCrMemoHeaderOnAfterSalesCrMemoHeaderTransferFields, '', false, false)]
+    procedure SalesPost_OnInsertCrMemoHeaderOnAfterSalesCrMemoHeaderTransferFields(var SalesHeader: Record "Sales Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        TrafalgarGenCodeunit: Codeunit "Trafalgar General Codeunit";
+    begin
+        SalesCrMemoHeader."Assigned User ID" := SalesHeader."Assigned User ID";
+        SalesCrMemoHeader."Sales Return Created By" := TrafalgarGenCodeunit.GetUserNameFromSecurityId(SalesHeader.SystemCreatedBy);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Mgt.", OnAfterCalculateShipBillToOptions, '', false, false)]
     procedure CustomerMgt_OnAfterCalculateShipBillToOptions(var ShipToOptions: Enum "Sales Ship-to Options")
     begin
@@ -446,6 +464,7 @@ codeunit 50101 "Extention for Sales Subscriber"
             end;
     end;
 
+
     [EventSubscriber(ObjectType::Table, Database::"Sales Line Discount", OnBeforeValidateEvent, "Line Discount %", true, true)]
     local procedure SalesLineDiscount_OnBeforeValidateEvent_LineDiscountPct(var Rec: Record "Sales Line Discount")
     var
@@ -455,7 +474,7 @@ codeunit 50101 "Extention for Sales Subscriber"
             if TrafalgarGeneralCodeunit.CheckUserCanApplyGenericDiscount() = false then
                 Error('You do not have permission to create system wide discounts, please chat to Kate');
     end;
-
+    /*
     [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnValidateLineDiscountPercentOnAfterTestStatusOpen, '', true, true)]
     local procedure SalesLine_OnValidateLineDiscountPercentOnAfterTestStatusOpen(CurrentFieldNo: Integer)
     var
@@ -475,7 +494,7 @@ codeunit 50101 "Extention for Sales Subscriber"
         if TrafalgarGeneralCodeunit.CheckUserCanApplyGenericDiscount() = false then
             Error('You do not have permission to create system wide discounts, please chat to Kate');
     end;
-
+    */
     /*
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromSalesDocSalesLine, '', false, false)]
     procedure CopyDocumentMgt_OnAfterCopySalesLineFromSalesDocSalesLine(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; IncludeHeader: Boolean; RecalculateLines: Boolean)

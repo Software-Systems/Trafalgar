@@ -4,34 +4,35 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
     layout
     {
         // Add changes to page layout here
+        addlast(General)
+        {
+            group("Sales Order")
+            {
+                field("Assigned User ID"; Rec."Assigned User ID")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Assigned User ID field.', Comment = '%';
+                }
+                field("Method Of Enquiry"; Rec."Method Of Enquiry")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Method Of Enquiry field.', Comment = '%';
+                }
+                field("Sales Order Created By"; Rec."Sales Order Created By")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Sales Order Created By field.', Comment = '%';
+                }
+            }
+        }
         addafter(Closed)
         {
             field(Documents; Rec.Documents)
             {
                 ApplicationArea = all;
             }
-            /*
-            field("CC Processed By"; Rec."CC Processed By")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Specifies the value of the CC Processed By field.', Comment = '%';
-            }
-            field("CC Payment Date"; Rec."CC Payment Date")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Specifies the value of the CC Payment Date field.', Comment = '%';
-            }
-            field("CC Card Type"; Rec."CC Card Type")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Specifies the value of the CC Card Type field.', Comment = '%';
-            }
-            field("CC Machine"; Rec."CC Machine")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Specifies the value of the CC Machine field.', Comment = '%';
-            }
-            */
+
+
             field("Created By"; Rec."Created By")
             {
                 ApplicationArea = All;

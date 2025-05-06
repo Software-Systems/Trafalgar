@@ -124,6 +124,7 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
             SalesPayments.Reset;
             SalesPayments.Setrange(SalesPayments."Document No.", Rec."No.");
             SalesPayments.Setrange(SalesPayments."Apply to this Invoice", True);
+            SalesPayments.Setrange(SalesPayments."Payment Processed", True);
             if SalesPayments.findset then
                 repeat
                     TotalPaid := TotalPaid + SalesPayments."Amount Paid";
@@ -184,5 +185,12 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         if Rec."Assigned User ID" = '' then
             Error('Please select Assigned User ID in %1 %2', Rec."Document Type", Rec."No.");
     end;
+
+    trigger OnInsert()
+    begin
+        if Rec."Assigned User ID" = '' then
+            "Assigned User ID" := UserId;
+    end;
+
 
 }

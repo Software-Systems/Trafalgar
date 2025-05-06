@@ -106,21 +106,23 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
                     CheckAndUpdateStatus();
                 end;
             }
+            /* Disable Barcode scanning functionality for Go-live 30/04/2025
             action("Pack Order")
             {
                 ApplicationArea = all;
                 Image = PutAway;
                 RunObject = Page "TG Sales Order Details";
             }
+            */
         }
         addafter("Create &Warehouse Shipment_Promoted")
         {
             actionref("Update Warehouse Availability_Promoted"; "Update Warehouse Availability")
             {
             }
-            actionref(Pack_Order_Promoted; "Pack Order")
-            {
-            }
+            //actionref(Pack_Order_Promoted; "Pack Order")
+            //{
+            // }
         }
         addafter("Print Confirmation_Promoted")
         {

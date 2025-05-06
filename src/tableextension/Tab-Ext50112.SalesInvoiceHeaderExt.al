@@ -79,6 +79,18 @@ tableextension 50112 TabExtSalesInvoiceHeader extends "Sales Invoice Header"
         {
             DataClassification = CustomerContent;
         }
+        field(78010; "Sales Order Created By"; Text[100])
+        {
+            DataClassification = CustomerContent;
+            Editable = False;
+        }
+        field(78020; "Assigned User ID"; Code[50])
+        {
+            Caption = 'Assigned User ID';
+            DataClassification = EndUserIdentifiableInformation;
+            TableRelation = "User Setup";
+        }
+
     }
 
     procedure GetTotalSalesPaid() TotalPaid: Decimal
@@ -91,6 +103,7 @@ tableextension 50112 TabExtSalesInvoiceHeader extends "Sales Invoice Header"
             //SalesPayments.Setrange(SalesPayments."Document Type", SalesPayments."Document Type"::Order);
             SalesPayments.Setrange(SalesPayments."Document No.", Rec."Order No.");
             SalesPayments.Setrange(SalesPayments."Apply to this Invoice", True);
+            SalesPayments.Setrange(SalesPayments."Payment Processed", True);
             if SalesPayments.findset then
                 repeat
                     TotalPaid := TotalPaid + SalesPayments."Amount Paid";

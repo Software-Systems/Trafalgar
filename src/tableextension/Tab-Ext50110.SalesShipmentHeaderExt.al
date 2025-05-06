@@ -79,5 +79,17 @@ tableextension 50110 TabExtSalesShipmentHeader extends "Sales Shipment Header"
         {
             DataClassification = CustomerContent;
         }
+        field(78010; "Sales Order Created By"; Text[100])
+        {
+            DataClassification = CustomerContent;
+            Editable = False;
+        }
+        field(78020; "Assigned User ID"; Code[50])
+        {
+            Caption = 'Assigned User ID';
+            DataClassification = EndUserIdentifiableInformation;
+            TableRelation = "User Setup";
+        }
+
     }
 }

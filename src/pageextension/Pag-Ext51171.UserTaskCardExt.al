@@ -151,11 +151,11 @@ pageextension 51171 UserTaskCardExt extends "User Task Card"
         if Rec."Assigned To User Name" = '' then
             ErrorMessage := 'Please Select User Assigned To';
 
-        if Rec."Bank Account No." = '' then
-            ErrorMessage := ErrorMessage + TypeHelper.CRLFSeparator() + 'Please Fill Up Account No.';
+        if Rec."Customer No." = '' then
+            ErrorMessage := ErrorMessage + TypeHelper.CRLFSeparator() + 'Please Fill In Account No.';
 
         if Rec."Refund Amount" = 0 then
-            ErrorMessage := ErrorMessage + TypeHelper.CRLFSeparator() + 'Please Fill Up Refund Amount';
+            ErrorMessage := ErrorMessage + TypeHelper.CRLFSeparator() + 'Please Fill In Refund Amount';
 
         if ErrorMessage <> '' then
             Error(ErrorMessage);

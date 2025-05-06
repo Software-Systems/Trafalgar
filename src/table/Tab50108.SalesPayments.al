@@ -145,7 +145,6 @@ table 50108 "Sales Payments"
             GenJnlLine.Validate("Document Type", GenJnlLine."Document Type"::Payment);
             GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Customer);
             GenJnlLine.Validate("Account No.", CustomerNo);
-            GenJnlLine.Validate(Description, 'Sales Payment ' + Rec."Document No." + ' by ' + Rec."Processed By");
             GenJnlLine.Validate(Amount, Rec."Amount Paid" * -1);
             GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
             GenJnlLine.Validate("Bal. Account No.", 'CBA');

@@ -204,6 +204,8 @@ pageextension 50041 PagExtSalesQuote extends "Sales Quote"
         AssignedUserID := Rec."Assigned User ID";
     end;
 
+
+
     var
         NoStockMessage: Text;
         AssignedUserID: Code[50];
