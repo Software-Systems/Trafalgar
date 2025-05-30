@@ -430,7 +430,12 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
                 Message('%1', NoStockMessage);
 
             if Customer.Get(Rec."Bill-to Customer No.") then
-                TrafalgarGenCodeunit.PopUpCustomerImportantNotes(Customer."Important Notes");
+                TrafalgarGenCodeunit.PopUpNotification(Customer."Important Notes");
+
+            TrafalgarGenCodeunit.PopUpNotification(Rec.GetSalesLineItemPrompt);
+
+            if Rec."Method Of Enquiry" = Rec."Method Of Enquiry"::" " then
+                Message('Please fill in method of enquiry');
         end;
 
         Rec.ShowShortcutDimCode(ShortcutDimCode);

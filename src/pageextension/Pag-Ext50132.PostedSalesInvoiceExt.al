@@ -4,6 +4,14 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
     layout
     {
         // Add changes to page layout here
+        addafter("Order No.")
+        {
+            field("Prepayment Order No."; Rec."Prepayment Order No.")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Prepayment Order No. field.', Comment = '%';
+            }
+        }
         addlast(General)
         {
             group("Sales Order")
@@ -31,8 +39,6 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
             {
                 ApplicationArea = all;
             }
-
-
             field("Created By"; Rec."Created By")
             {
                 ApplicationArea = All;
@@ -96,8 +102,18 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
             {
                 Image = Payment;
                 ApplicationArea = all;
-                RunObject = Page "Sales Payments";
-                RunPageLink = "Document No." = field("Order No.");
+                trigger OnAction()
+                var
+                    PageSalesPayments: Page "Sales Payments";
+                    DocType: Enum "Sales Document Type";
+                begin
+                    Clear(PageSalesPayments);
+                    if Rec."Order No." <> '' then
+                        PageSalesPayments.SetPar(DocType::Order, Rec."Order No.")
+                    else
+                        PageSalesPayments.SetPar(DocType::Invoice, Rec."No.");
+                    PageSalesPayments.RunModal();
+                end;
             }
         }
         addafter("ChangePaymentService_Promoted")

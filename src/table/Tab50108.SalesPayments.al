@@ -103,7 +103,10 @@ table 50108 "Sales Payments"
         end
         else begin
             SalesInvHeader.Reset;
-            SalesInvHeader.Setrange(SalesInvHeader."Order No.", Rec."Document No.");
+            if Rec."Document Type" = Rec."Document Type"::Order then
+                SalesInvHeader.Setrange(SalesInvHeader."Order No.", Rec."Document No.")
+            else
+                SalesInvHeader.Setrange(SalesInvHeader."No.", Rec."Document No.");
             if SalesInvHeader.FindSet() then begin
                 CCPaymentDate := SalesInvHeader."CC Payment Date";
                 CustomerNo := SalesInvHeader."Bill-to Customer No.";

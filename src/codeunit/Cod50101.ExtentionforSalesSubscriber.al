@@ -1,5 +1,8 @@
 codeunit 50101 "Extention for Sales Subscriber"
 {
+    var
+        TrafalgarGeneralCodeunit: Codeunit "Trafalgar General Codeunit";
+
     local procedure CheckForPlannedProductionOrders(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         Item: Record Item;
@@ -176,6 +179,18 @@ codeunit 50101 "Extention for Sales Subscriber"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", OnBeforeReopenSalesDoc, '', true, true)]
+    local procedure ReleaseSalesDocument_OnBeforeReopenSalesDoc(var SalesHeader: Record "Sales Header")
+    begin
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then
+            if TrafalgarGeneralCodeunit.IsUserAllowedToReopen(UserId) = True then begin
+                if SalesHeader."Order Status" IN [SalesHeader."Order Status"::"7 Packed", SalesHeader."Order Status"::"8 Printed"] then
+                    Error('%1 %2 is not Allowed to Reopen. Order Status is %3.', SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Order Status");
+            end
+            else
+                Error('You do not have the correct privileges to re-open an Order that is Printed or Packed.');
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", OnBeforePerformManualReleaseProcedure, '', true, true)]
     local procedure OnBeforePerformManualReleaseProcedure(var SalesHeader: Record "Sales Header")
     var
@@ -192,6 +207,17 @@ codeunit 50101 "Extention for Sales Subscriber"
         Customer: Record Customer;
         OverDueBalance: Decimal;
     begin
+        if SalesHeader."Document Type" IN [SalesHeader."Document Type"::Quote, SalesHeader."Document Type"::Order] then begin
+            if SalesHeader."Method Of Enquiry" = SalesHeader."Method Of Enquiry"::" " then
+                Message('"Method of Enquiry" is blank in Sales %1 %2.', SalesHeader."Document Type", SalesHeader."No.");
+
+            if SalesHeader."Requested Delivery Date" < Today then
+                Message('Requested Delivery Date for Sales %1 %2 is %3, Please change to today or future date.', SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Requested Delivery Date");
+
+            if SalesHeader."Shipment Date" < Today then
+                Message('Shipment Date for Sales %1 %2 is %3, Please change to today or future date.', SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Shipment Date");
+        end;
+
         if UserSetup.Get(UserId) then begin
             if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
                 SalesHeader.CalcFields(SalesHeader.Amount, SalesHeader."Amount Including VAT");

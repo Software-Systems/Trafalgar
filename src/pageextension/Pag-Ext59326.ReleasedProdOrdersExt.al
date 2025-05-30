@@ -4,21 +4,11 @@ pageextension 59326 PagExtReleasedProdOrders extends "Released Production Orders
     {
         addafter("Source No.")
         {
-            field("Product Code"; ProductCode)
+            field("Product Code"; Rec."Product Code")
             {
-                ApplicationArea = all;
-                Editable = false;
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Product Code field.', Comment = '%';
             }
         }
     }
-    trigger OnAfterGetRecord()
-    begin
-        Clear(ProductCode);
-        if Item.get(Rec."Source No.") then
-            ProductCode := Item."Product Code";
-    end;
-
-    var
-        ProductCode: Code[200];
-        Item: Record Item;
 }

@@ -34,15 +34,6 @@ pageextension 55159 PagExtSalesOrderArchive extends "Sales Order Archive"
                 ToolTip = 'Specifies the value of the Amount Paid field.', Comment = '%';
             }
         }
-        addafter(Status)
-        {
-            field("Work Description"; WorkDescription)
-            {
-                ApplicationArea = all;
-                Caption = 'Work Description';
-                MultiLine = true;
-            }
-        }
     }
     actions
     {

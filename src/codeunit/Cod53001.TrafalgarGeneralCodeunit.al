@@ -1,5 +1,20 @@
 codeunit 53001 "Trafalgar General Codeunit"
 {
+    var
+        AccessControl: Record "Access Control";
+
+    procedure IsUserAllowedToReopen(ParUserID: Text): Boolean
+    begin
+        AccessControl.Reset;
+        AccessControl.Setrange(AccessControl."User Name", ParUserId);
+        AccessControl.Setfilter(AccessControl."Role ID", '%1|%2', 'SUPER', '_PROD');
+        AccessControl.Setfilter(AccessControl."Company Name", '%1|%2', '', CompanyName);
+        if AccessControl.FindFirst() then
+            exit(True)
+        else
+            exit(False);
+    end;
+
     procedure CheckUserCanApplyGenericDiscount(): Boolean
     var
         UserSetup: Record "User Setup";
@@ -247,17 +262,18 @@ codeunit 53001 "Trafalgar General Codeunit"
         end;
     end;
 
-    procedure PopUpCustomerImportantNotes(ParImportantNotes: Text)
+    procedure PopUpNotification(ParNotificationText: Text)
     var
-        CustomerNotification: Notification;
+        TrafalgarNotification: Notification;
     begin
-        if DelChr(ParImportantNotes, '=', ' ') <> '' then begin
-            Clear(CustomerNotification);
-            CustomerNotification.Message := ParImportantNotes;
-            CustomerNotification.Scope := NotificationScope::LocalScope;
-            CustomerNotification.Send();
+        if DelChr(ParNotificationText, '=', ' ') <> '' then begin
+            Clear(TrafalgarNotification);
+            TrafalgarNotification.Message := ParNotificationText;
+            TrafalgarNotification.Scope := NotificationScope::LocalScope;
+            TrafalgarNotification.Send();
         end;
     end;
+
 
     procedure ConvertToBarcode(ParText: Text): Text
     var

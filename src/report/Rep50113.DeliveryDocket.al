@@ -468,8 +468,8 @@ report 50113 "Delivery Docket"
         {
             Type = RDLC;
             LayoutFile = '.\Reports\Layouts\Trafalgar_DeliveryDocket.rdl';
-            Caption = 'Standard Sales Quote (RDLC)';
-            Summary = 'The Standard Sales Quote (RDLC) provides a detailed layout.';
+            Caption = 'Delivery Docket - Sales Order (RDLC)';
+            Summary = 'Delivery Docket - Sales Order (RDLC) provides a detailed layout.';
         }
     }
 

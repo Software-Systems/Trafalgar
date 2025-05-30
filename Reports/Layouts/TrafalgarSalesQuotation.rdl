@@ -9,7 +9,7 @@
       <am:Name>MSRB</am:Name>
       <am:Version>15.0.20283.0</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2025-03-12T06:55:34.8263942Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2025-05-12T01:00:26.4891047Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <AutoRefresh>0</AutoRefresh>
   <DataSources>
@@ -2277,11 +2277,19 @@ Cstr(First(Fields!AmountPaidFormat.Value)),1)</Hidden>
                     <Paragraph>
                       <TextRuns>
                         <TextRun>
-                          <Value>="$ "&amp;Code.GetData(4,1)</Value>
+                          <Value>$ </Value>
                           <Style>
                             <FontFamily>Calibri</FontFamily>
                             <FontWeight>Bold</FontWeight>
-                            <Format>f2</Format>
+                            <Format>n2</Format>
+                          </Style>
+                        </TextRun>
+                        <TextRun>
+                          <Value>=Fields!AmountPaid_Header.Value</Value>
+                          <Style>
+                            <FontFamily>Calibri</FontFamily>
+                            <FontWeight>Bold</FontWeight>
+                            <Format>n2</Format>
                           </Style>
                         </TextRun>
                       </TextRuns>

@@ -36,18 +36,12 @@ tableextension 55405 TabExtProductionOrder extends "Production Order"
             Caption = 'Delete Confirmation';
             AllowInCustomizations = Always;
         }
-    }
 
-    keys
-    {
-        // Add changes to keys here
+        field(51001; "Product Code"; Code[200])
+        {
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup(Item."Product Code" where("No." = field("Source No.")));
+        }
     }
-
-    fieldgroups
-    {
-        // Add changes to field groups here
-    }
-
-    var
-        myInt: Integer;
 }

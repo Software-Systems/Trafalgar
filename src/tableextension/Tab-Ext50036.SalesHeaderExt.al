@@ -147,6 +147,32 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         Modify();
     end;
 
+    procedure GetSalesLineItemPrompt() RetValue: Text;
+    var
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        TempItemNo: Code[20];
+    begin
+        SalesLine.Reset;
+        SalesLine.SetCurrentKey(SalesLine."No.");
+        SalesLine.Setrange(SalesLine."Document Type", "Document Type");
+        SalesLine.Setrange(SalesLine."Document No.", "No.");
+        SalesLine.Setrange(SalesLine.Type, SalesLine.Type::Item);
+        if SalesLine.FindSet() then
+            repeat
+                if SalesLine."No." <> TempItemNo then
+                    if Item.Get(SalesLine."No.") then begin
+                        if DelChr(Item."User Prompt", '=', ' ') <> '' then
+                            RetValue := RetValue + Item."No." + ' : ' + Item."User Prompt" + '|';
+                    end;
+                TempItemNo := SalesLine."No.";
+            until SalesLine.Next() = 0;
+
+        if RetValue <> '' then
+            RetValue := CopyStr(RetValue, 1, StrLen(RetValue) - 1);
+        exit(RetValue);
+    end;
+
     procedure CheckInStockQuantity() RetValue: Text
     var
         SalesLine: Record "Sales Line";
@@ -180,8 +206,7 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
     procedure CheckTrafalgarMandatoryFields()
     begin
         if Rec."Method Of Enquiry" = Rec."Method Of Enquiry"::" " then
-            Error('Please select Method Of Enquiry in %1 %2', Rec."Document Type", Rec."No.");
-
+            Message('"Method Of Enquiry" is blank in %1 %2', Rec."Document Type", Rec."No.");
         if Rec."Assigned User ID" = '' then
             Error('Please select Assigned User ID in %1 %2', Rec."Document Type", Rec."No.");
     end;

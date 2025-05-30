@@ -19,7 +19,7 @@ report 50121 "Trafalgar Sales Quotation"
             column(CompanyPicture; CompanyInformation.Picture)
             {
             }
-            column(AmountPaid_Header; "Amount Paid")
+            column(AmountPaid_Header; GetTotalSalesPaid)// "Amount Paid")
             {
             }
             column(AmountPaidFormat; AmountPaidFormat)
@@ -450,7 +450,7 @@ report 50121 "Trafalgar Sales Quotation"
                     FormattedTotalAmount := Format(TotalAmount, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode));
                     FormattedTotalVATAmount := Format(TotalVATAmount, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode));
                     FormattedTotalAmountInclVAT := Format(TotalAmountInclVAT, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode));
-                    TotalAmtPaid := TotalAmountInclVAT - Header."Amount Paid";
+                    TotalAmtPaid := TotalAmountInclVAT - Header.GetTotalSalesPaid;
                 end;
             }
 

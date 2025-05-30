@@ -9,11 +9,13 @@ pageextension 50526 PagExtPostedSalesInvLines extends "Posted Sales Invoice Line
                 Caption = 'Customer Name';
                 ApplicationArea = all;
             }
+            /*
             field("Order No."; Rec."Order No.")
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Order No. field.', Comment = '%';
             }
+            */
             field("Sales Order Created By"; Rec.GetSalesOrderCreatedBy())
             {
                 ApplicationArea = All;

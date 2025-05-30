@@ -84,6 +84,18 @@ page 50108 "Sales Payments"
         }
     }
 
+    var
+        DocType: Enum "Sales Document Type";
+        DocNo: Code[20];
+
+    trigger OnOpenPage()
+    begin
+        if DocNo <> '' then begin
+            Rec.Setrange("Document Type", DocType);
+            Rec.SetRange("Document No.", DocNo);
+        end;
+    end;
+
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec."Apply to this Invoice" := True;
@@ -103,5 +115,11 @@ page 50108 "Sales Payments"
             else
                 Error('Please Process The Payment for Line No. %1.', SalesPayments."Line No.");
         end;
+    end;
+
+    procedure SetPar(ParDocType: Enum "Sales Document Type"; ParDocNo: Code[20])
+    begin
+        DocType := ParDocType;
+        DocNo := ParDocNo;
     end;
 }
