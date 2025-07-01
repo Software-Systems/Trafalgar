@@ -3,17 +3,17 @@ codeunit 53001 "Trafalgar General Codeunit"
     var
         AccessControl: Record "Access Control";
 
-    procedure IsUserAllowedToReopen(ParUserID: Text): Boolean
-    begin
-        AccessControl.Reset;
-        AccessControl.Setrange(AccessControl."User Name", ParUserId);
-        AccessControl.Setfilter(AccessControl."Role ID", '%1|%2', 'SUPER', '_PROD');
-        AccessControl.Setfilter(AccessControl."Company Name", '%1|%2', '', CompanyName);
-        if AccessControl.FindFirst() then
-            exit(True)
-        else
-            exit(False);
-    end;
+    // procedure IsUserAllowedToReopen(ParUserID: Text): Boolean
+    //begin
+    // AccessControl.Reset;
+    // AccessControl.Setrange(AccessControl."User Name", ParUserId);
+    // AccessControl.Setfilter(AccessControl."Role ID", '%1|%2', 'SUPER', '_PROD', '_PURCH-INV');
+    // AccessControl.Setfilter(AccessControl."Company Name", '%1|%2', '', CompanyName);
+    //if AccessControl.FindFirst() then
+    //    exit(True)
+    // else
+    //    exit(False);
+    //end;
 
     procedure CheckUserCanApplyGenericDiscount(): Boolean
     var
@@ -292,5 +292,4 @@ codeunit 53001 "Trafalgar General Codeunit"
         end;
         Exit(RetValueEncodedText);
     end;
-
 }

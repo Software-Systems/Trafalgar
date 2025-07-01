@@ -22,6 +22,24 @@ pageextension 50118 PagExtGeneralLedgerSetup extends "General Ledger Setup"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the Purchase Document Path field.', Comment = '%';
                 }
+                group(GLEntries)
+                {
+                    field("Sharepoint GLEntries Nos."; Rec."Sharepoint GLEntries Nos.")
+                    {
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies the value of the Sharepoint GLEntries Nos. field.', Comment = '%';
+                    }
+                    field("SharePoint GLEntries Doc. Path"; Rec."SharePoint GLEntries Doc. Path")
+                    {
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies the value of the GLEntries Document Path field.', Comment = '%';
+                    }
+                    field("Sharepoint Client Secret"; Rec."Sharepoint Client Secret")
+                    {
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies the value of the Sharepoint Client Secret field.', Comment = '%';
+                    }
+                }
             }
             field("Auto Send Invoice on Posting"; Rec."Auto Send Invoice on Posting")
             {

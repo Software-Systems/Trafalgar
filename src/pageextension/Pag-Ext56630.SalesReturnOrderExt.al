@@ -4,6 +4,11 @@ pageextension 56630 PagExtSalesReturnOrder extends "Sales Return Order"
     {
         addafter("External Document No.")
         {
+            field("Completely Shipped"; Rec."Completely Shipped")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies whether all the items on the order have been shipped or, in the case of inbound items, completely received.';
+            }
             field("Refund Type"; Rec."Refund Type")
             {
                 ApplicationArea = All;

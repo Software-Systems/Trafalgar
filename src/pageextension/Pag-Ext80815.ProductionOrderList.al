@@ -1,4 +1,4 @@
-pageextension 59327 PagExtFinishedProdOrders extends "Finished Production Orders"
+pageextension 80815 PagExtProductionOrderList extends "Production Order List"
 {
     layout
     {

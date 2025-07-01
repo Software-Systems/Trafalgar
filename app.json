@@ -2,7 +2,7 @@
   "id": "306046f4-32b0-45ba-8e35-cd69c4edbfe5",
   "name": "Trafalgar_Customization",
   "publisher": "Software Systems",
-  "version": "1.0.0.113",
+  "version": "1.0.0.119",
   "brief": "",
   "description": "",
   "privacyStatement": "",
@@ -14,7 +14,7 @@
     {
       "id": "a2827593-d857-4c13-b95d-f02596746679",
       "name": "SmallChanges",
-      "version": "1.0.0.11",
+      "version": "1.0.0.15",
       "publisher": "Software Systems"
     }
   ],
