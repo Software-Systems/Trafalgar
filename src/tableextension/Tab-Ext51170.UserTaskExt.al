@@ -107,7 +107,7 @@ tableextension 51170 TabExtUserTask extends "User Task"
         Clear("Assigned To");
 
         if GLSetup.Get() then
-            Rec.Documents := GLSetup."SharePoint User Tasks Path" + Format(Rec.ID) + '-' + Rec.Title;
+            Rec.Documents := GLSetup."SharePoint Document Path" + '/UserTasks/' + Format(Rec.ID) + '-' + Rec.Title;
     end;
 
 }

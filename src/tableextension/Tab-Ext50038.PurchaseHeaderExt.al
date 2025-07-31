@@ -30,7 +30,7 @@ tableextension 50038 TabExtPurchaseHeader extends "Purchase Header"
         GenLedSetup: Record "General Ledger Setup";
     begin
         GenLedSetup.Get();
-        Documents := GenLedSetup."SharePoint Purch Document Path" + '' + "No.";
+        Documents := GenLedSetup."SharePoint Document Path" + '/PurchDocs/' + "No.";
         Modify();
     end;
 }

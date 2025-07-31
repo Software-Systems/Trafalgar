@@ -32,15 +32,20 @@ pageextension 50039 PagExtGeneralJournal extends "General Journal"
                     IF GJL.FINDSET THEN BEGIN
                         Counter := 0;
                         REPEAT
-                            if GJL."Document No." <> TempDocNo then
-                                JournalNo := Rec.GenerateJournalNo();
-                            GJL."Journal No." := JournalNo;
-                            GJL.Modify();
-                            Counter := Counter + 1;
+                            if GJL."Journal No." = '' then begin
+                                if GJL."Document No." <> TempDocNo then
+                                    JournalNo := TrafalgarSharepointCodeunit.GenerateJournalNo();
+                                GJL."Journal No." := JournalNo;
+                                GJL.Modify();
+                                Counter := Counter + 1;
 
-                            TempDocNo := GJL."Document No.";
+                                TempDocNo := GJL."Document No.";
+                            end;
                         UNTIL GJL.NEXT = 0;
-                        Message('%1 Lines(s) Successfully Populated Journal No.', Counter);
+                        if Counter = 0 then
+                            Message('There is no record Populated Journal No.')
+                        else
+                            Message('%1 Lines(s) Successfully Populated Journal No.', Counter);
                         CurrPage.Update();
                     END;
                 end;
@@ -52,9 +57,9 @@ pageextension 50039 PagExtGeneralJournal extends "General Journal"
                 ToolTip = 'Open Documents.';
                 ApplicationArea = all;
                 trigger OnAction()
-                var
-                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
                 begin
+                    if Rec."Journal No." = '' then
+                        Rec."Journal No." := TrafalgarSharepointCodeunit.GenerateJournalNo();
                     TrafalgarSharepointCodeunit.OpenSharepointDocument(17, Rec."Journal No.");
                 end;
             }
@@ -69,4 +74,8 @@ pageextension 50039 PagExtGeneralJournal extends "General Journal"
             }
         }
     }
+
+    var
+        TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+
 }

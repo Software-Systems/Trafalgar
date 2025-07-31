@@ -36,6 +36,13 @@ tableextension 50113 TabExtSalesInvoiceLine extends "Sales Invoice Line"
             ("Table No." = const(36), "Type of Change" = Filter(Insertion), "Primary Key Field 2 Value" = field("Order No.")
             ));
         }
+        field(78020; "Assigned User ID"; Code[50])
+        {
+            Caption = 'Assigned User ID';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Sales Invoice Header"."Assigned User ID" where("No." = field("Document No.")));
+        }
 
     }
 

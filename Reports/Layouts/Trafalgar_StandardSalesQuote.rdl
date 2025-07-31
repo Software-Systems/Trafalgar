@@ -9,7 +9,7 @@
       <am:Name>MSRB</am:Name>
       <am:Version>15.0.20283.0</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2025-02-14T03:16:05.6973042Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2025-07-14T05:30:40.6171420Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <AutoRefresh>0</AutoRefresh>
   <DataSources>
@@ -542,7 +542,7 @@ Cstr(First(Fields!TotalAmountToBePaid.Value, "DataSet_Result")),1)</Hidden>
               <Top>299.25426pt</Top>
               <Left>9.11504cm</Left>
               <Height>11pt</Height>
-              <Width>2.5cm</Width>
+              <Width>4.15826cm</Width>
               <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -1238,7 +1238,7 @@ Cstr(First(Fields!TotalAmountToBePaid.Value, "DataSet_Result")),1)</Hidden>
                   <rd:DefaultName>Textbox7</rd:DefaultName>
                   <Left>8.91913cm</Left>
                   <Height>0.6cm</Height>
-                  <Width>2.5cm</Width>
+                  <Width>4.17569cm</Width>
                   <ZIndex>3</ZIndex>
                   <Style>
                     <Border>
@@ -1256,7 +1256,7 @@ Cstr(First(Fields!TotalAmountToBePaid.Value, "DataSet_Result")),1)</Hidden>
               <Top>9.85672cm</Top>
               <Left>0.17848cm</Left>
               <Height>0.6cm</Height>
-              <Width>11.43656cm</Width>
+              <Width>13.09482cm</Width>
               <ZIndex>6</ZIndex>
               <Style>
                 <Border>
@@ -2961,6 +2961,9 @@ AAAA7rKEw88hhJMFiyEaDgAAAAAAAAAAAACwM2LhAAAAAAAAAAAAAMBDTENzEQ4vhmg4AAAAAAAAAAAA
         </Field>
         <Field Name="SalesPersonName">
           <DataField>SalesPersonName</DataField>
+        </Field>
+        <Field Name="AssignedUserID">
+          <DataField>AssignedUserID</DataField>
         </Field>
         <Field Name="ShipmentMethodDescription">
           <DataField>ShipmentMethodDescription</DataField>

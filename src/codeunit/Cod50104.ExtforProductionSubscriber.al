@@ -26,6 +26,18 @@ codeunit 50104 "Ext for Production Subscriber"
             ProdOrder.Documents := Salesheader.Documents;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Production Order", OnAfterInsertEvent, '', true, true)]
+    local procedure ProductionOrder_OnAfterInsertEvent(var Rec: Record "Production Order")
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get;
+        if GLSetup."Location For Make To Order" <> '' then begin
+            Rec.Validate(Rec."Location Code", GLSetup."Location For Make To Order");
+            Rec.Modify();
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Prod. Order from Sale", OnAfterCreateProdOrder, '', true, true)]
     local procedure CreateProdOrderfromSale_OnAfterCreateProdOrder(var ProdOrder: Record "Production Order"; var SalesLine: Record "Sales Line")
     var

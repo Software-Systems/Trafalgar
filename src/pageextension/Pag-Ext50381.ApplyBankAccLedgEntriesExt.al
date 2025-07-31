@@ -20,11 +20,13 @@ pageextension 50381 PagExtApplyBankAccLedgEntries extends "Apply Bank Acc. Ledge
     begin
         Clear(CCMachine);
         Clear(CCType);
-        SalesPayments.Reset;
-        SalesPayments.Setrange(SalesPayments."Document No.", Rec."External Document No.");
-        if SalesPayments.FindFirst() then begin
-            CCType := Format(SalesPayments."Card Type");
-            CCMachine := SalesPayments.Machine;
+        if Rec."External Document No." <> '' then begin
+            SalesPayments.Reset;
+            SalesPayments.Setrange(SalesPayments."Document No.", Rec."External Document No.");
+            if SalesPayments.FindFirst() then begin
+                CCType := Format(SalesPayments."Card Type");
+                CCMachine := SalesPayments.Machine;
+            end;
         end;
         /*
         SalesHeader.Reset();

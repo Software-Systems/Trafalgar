@@ -19,6 +19,16 @@ pageextension 50144 PagExtPostedSalesCreditMemos extends "Posted Sales Credit Me
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Sales Return Created By field.', Comment = '%';
             }
+            field("Reason Code"; Rec."Reason Code")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the reason code for the document.';
+            }
+            field(SystemCreatedAt; Rec.SystemCreatedAt)
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the SystemCreatedAt field.', Comment = '%';
+            }
         }
     }
     actions

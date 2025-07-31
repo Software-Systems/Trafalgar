@@ -24,9 +24,13 @@ pageextension 50020 PagExtGeneralLedgerEntries extends "General Ledger Entries"
                 ApplicationArea = all;
                 trigger OnAction()
                 var
-                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                    JournalNo: Text;
                 begin
-                    TrafalgarSharepointCodeunit.OpenSharepointDocument(17, Rec."Journal No.");
+                    if Rec."Journal No." = '' then
+                        JournalNo := TrafalgarSharepointCodeunit.UpdateGLEntryJournalNo(Rec."Entry No.")
+                    else
+                        JournalNo := Rec."Journal No.";
+                    TrafalgarSharepointCodeunit.OpenSharepointDocument(17, JournalNo);
                 end;
             }
         }
@@ -37,4 +41,7 @@ pageextension 50020 PagExtGeneralLedgerEntries extends "General Ledger Entries"
             }
         }
     }
+
+    var
+        TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
 }

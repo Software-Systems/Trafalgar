@@ -206,11 +206,11 @@ pageextension 50256 PagExtPaymentJournal extends "Payment Journal"
                 if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor then begin
                     vendor.Get(GenJnlLine."Account No.");
                     if vendor."EFT Bank Account No." = '' then
-                        Error('Vedor %1 does not have a correct bank account.', vendor."No.")
+                        Error('Vendor %1 does not have a correct bank account.', vendor."No.")
                     else begin
                         vendBankAcc.Get(vendor."No.", vendor."EFT Bank Account No.");
                         if vendBankAcc."Bank Account No." = '' then
-                            Error('Vedor %1 does not have a correct bank account.', vendor."No.");
+                            Error('Vendor %1 does not have a correct bank account.', vendor."No.");
                     end;
                 end;
             until GenJnlLine.Next() = 0;

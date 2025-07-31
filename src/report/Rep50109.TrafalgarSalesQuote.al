@@ -301,6 +301,9 @@ report 50109 "Trafalgar Sales - Quote"
             column(SalesPersonName; SalespersonPurchaser.Name)
             {
             }
+            column(AssignedUserID; "Assigned User ID")
+            {
+            }
             column(SelltoCustomerNo; "Sell-to Customer No.")
             {
             }

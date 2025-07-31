@@ -35,6 +35,10 @@ tableextension 50018 TabExtCustomer extends Customer
             Caption = 'Accounts Email Address';
             DataClassification = CustomerContent;
         }
+        field(50105; "NZBN"; Text[50])
+        {
+            DataClassification = CustomerContent;
+        }
         field(53010; "No. of Ongoing Quotes"; Integer)
         {
             CalcFormula = count("Sales Header" where(

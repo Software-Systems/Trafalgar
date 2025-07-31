@@ -1,12 +1,37 @@
 codeunit 53003 "Trafalgar Sharepoint Codeunit"
 {
+    Permissions = tabledata "G/L Entry" = rimd;
+
     var
         GLSetup: Record "General Ledger Setup";
+
+    procedure GenerateJournalNo() JournalNo: Code[20];
+    var
+        GLSetup: Record "General Ledger Setup";
+        NoSeries: Codeunit "No. Series";
+    begin
+        GLSetup.Get;
+        GLSetup.TestField("Sharepoint GLEntries Nos.");
+        JournalNo := NoSeries.GetNextNo(GLSetup."Sharepoint GLEntries Nos.", WorkDate, TRUE);
+        exit(JournalNo);
+    end;
 
     [EventSubscriber(ObjectType::Table, Database::"G/L Entry", OnAfterCopyGLEntryFromGenJnlLine, '', false, false)]
     local procedure GLEntry_OnAfterCopyGLEntryFromGenJnlLine(var GLEntry: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line");
     begin
         GLEntry."Journal No." := GenJournalLine."Journal No.";
+    end;
+
+    procedure UpdateGLEntryJournalNo(ParEntryNo: Integer) JournalNo: Text
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        if GLEntry.Get(ParEntryNo) then begin
+            JournalNo := GenerateJournalNo;
+            GLEntry."Journal No." := JournalNo;
+            GLEntry.Modify();
+            exit(JournalNo);
+        end;
     end;
 
     procedure OpenSharepointDocument(ParTableID: Integer; ParDocNo: Code[20])
@@ -41,6 +66,14 @@ codeunit 53003 "Trafalgar Sharepoint Codeunit"
                 begin
                     FolderName := 'GLEntriesDocs';
                 end;
+            21:
+                begin
+                    FolderName := 'CustLedgerEntriesDocs';
+                end;
+            25:
+                begin
+                    FolderName := 'VendLedgerEntriesDocs';
+                end;
         end;
         FolderName := FolderName + '/' + ParDocNo;
 
@@ -50,7 +83,7 @@ codeunit 53003 "Trafalgar Sharepoint Codeunit"
         // application permissions (replace with the actual site-id, drive-id, folder path and file name)
         HeaderURL := 'https://graph.microsoft.com/v1.0/sites/' + GetSiteID +
                             '/drives/' + GetDriveID() + '/root:/';
-        FileURL := GLSetup."SharePoint GLEntries Doc. Path" + ParDocNo;
+        FileURL := GLSetup."SharePoint Document Path" + '/' + FolderName;
         SharePointFileUrl := HeaderURL + FolderName + '/' + FileName + ':/content';
 
         // Initialize the HTTP request
@@ -108,6 +141,7 @@ codeunit 53003 "Trafalgar Sharepoint Codeunit"
     begin
         if GLSetup.Get then
             Exit(GLSetup."Sharepoint Client Secret");
+        //unT8Q~ImXL2wRUzW6CksaMWdiCzvMaTITYbcoaxx
     end;
 
     procedure GetTenantID(): Text;

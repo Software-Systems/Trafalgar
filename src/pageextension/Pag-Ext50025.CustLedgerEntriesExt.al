@@ -58,20 +58,36 @@ pageextension 50025 PagExtCustLedgerEntries extends "Customer Ledger Entries"
                         end;
                     END;
                 end;
-
+            }
+            action(OpenDocument)
+            {
+                Caption = 'Open Docs';
+                Image = OpenJournal;
+                ToolTip = 'Open Documents.';
+                ApplicationArea = all;
+                trigger OnAction()
+                begin
+                    TrafalgarSharepointCodeunit.OpenSharepointDocument(21, Rec."Document No.");
+                end;
             }
         }
         addafter(Customer_Promoted)
         {
             actionref(PaymentGenJournal_Promoted; "Payment Gen Journal")
             {
-
+            }
+        }
+        addafter("&Navigate_Promoted")
+        {
+            actionref(OpenDocument_Promoted; OpenDocument)
+            {
             }
         }
     }
 
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
+        TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
 
     procedure CreateGenJournal(
         ParJournalTemplateName: Text;

@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Trafalgar Sandbox DEV",
+            "name": "Trafalgar DEV29",
             "request": "launch",
             "type": "al",
             "tenant":"1949af70-dfa8-4f47-8d72-f0df75f3efb3",
@@ -10,11 +10,27 @@
             "environmentName": "DEV29",
             "breakOnError": "All",
             "startupObjectType": "Page",
-            "startupObjectId":5742,
+            "startupObjectId":9304,
+            "launchBrowser": true,
+            "enableLongRunningSqlStatements": true,
+            "enableSqlInformationDebugger": true,          
+            "schemaUpdateMode": "ForceSync"
+        },        
+        {
+            "name": "Trafalgar DEV31",
+            "request": "launch",
+            "type": "al",
+            "tenant":"1949af70-dfa8-4f47-8d72-f0df75f3efb3",
+            "environmentType": "Sandbox",
+            "environmentName": "DEV31",
+            "breakOnError": "All",
+            "startupObjectType": "Page",
+            "startupObjectId":9304,
             "launchBrowser": true,
             "enableLongRunningSqlStatements": true,
             "enableSqlInformationDebugger": true,          
             "schemaUpdateMode": "ForceSync"
         }
+
     ]
 }

@@ -96,4 +96,6 @@ pageextension 59300 PagExtSalesQuotes extends "Sales Quotes"
     begin
         Rec.SetRange("Quote Valid Until Date", Today, CalcDate('+10Y', Today));
     end;
+
+
 }

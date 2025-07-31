@@ -10,15 +10,5 @@ tableextension 50081 TabExtGenJournalLine extends "Gen. Journal Line"
         }
     }
 
-    procedure GenerateJournalNo() JournalNo: Code[20];
-    var
-        GLSetup: Record "General Ledger Setup";
-        NoSeries: Codeunit "No. Series";
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        GLSetup.Get;
-        GLSetup.TestField("Sharepoint GLEntries Nos.");
-        JournalNo := NoSeries.GetNextNo(GLSetup."Sharepoint GLEntries Nos.", WorkDate, TRUE);
-        exit(JournalNo);
-    end;
+
 }

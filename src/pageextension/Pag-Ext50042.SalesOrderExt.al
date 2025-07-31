@@ -150,6 +150,7 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
                 end;
             }
         }
+
         addafter(ProformaInvoice)
         {
             action("Print Quotation")
@@ -253,6 +254,9 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
             {
             }
             actionref(Invoice_promoted; "Invoice")
+            {
+            }
+            actionref(DownloadAsPdf2_Promoted; DownloadAsPDF)//From Sales Order Agent
             {
             }
         }
@@ -442,4 +446,14 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
 
         AssignedUserID := Rec."Assigned User ID";
     end;
+
+    /*
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        begin
+            if (Rec.Status = Rec.Status::Open) and (Rec."Shipment Method Code" = '') then
+                Error('Please fill in Shipment Method Code for Customer: %1 - %2', Rec."No.", Rec."Sell-to Customer Name");
+
+            exit(true); // allow page to close if validation passes
+        end;
+    */
 }

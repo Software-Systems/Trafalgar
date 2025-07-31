@@ -1,32 +1,26 @@
-pageextension 50516 PagExtSalesLines extends "Sales Lines"
+pageextension 50031 PagExtItemList extends "Item List"
 {
     layout
     {
-        addafter("Sell-to Customer No.")
+        addafter("Description")
         {
-            field(CustomerName; CustomerName)
-            {
-                Caption = 'Customer Name';
-                ApplicationArea = all;
-            }
-            field("Assigned User ID"; Rec."Assigned User ID")
+            field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
             {
                 ApplicationArea = All;
-                ToolTip = 'Specifies the value of the Assigned User ID field.', Comment = '%';
+                ToolTip = 'Specifies the value of the Global Dimension 1 Code field.', Comment = '%';
             }
-        }
-        addafter(Description)
-        {
-            field("Product Code"; Rec."Product Code")
+            field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
             {
                 ApplicationArea = All;
-                ToolTip = 'Specifies the value of the Product Code field.';
+                ToolTip = 'Specifies the value of the Global Dimension 2 Code field.', Comment = '%';
             }
+            /*
             field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Shortcut Dimension 3 Code field.', Comment = '%';
             }
+            */
             field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
             {
                 ApplicationArea = All;
@@ -37,6 +31,7 @@ pageextension 50516 PagExtSalesLines extends "Sales Lines"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Shortcut Dimension 5 Code field.', Comment = '%';
             }
+            /*            
             field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
             {
                 ApplicationArea = All;
@@ -52,18 +47,7 @@ pageextension 50516 PagExtSalesLines extends "Sales Lines"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Shortcut Dimension 8 Code field.', Comment = '%';
             }
-
+            */
         }
     }
-    var
-        CustomerName: Text[100];
-
-    trigger OnAfterGetRecord()
-    var
-        Customer: Record Customer;
-    begin
-        Clear(CustomerName);
-        if Customer.Get(Rec."Sell-to Customer No.") then
-            CustomerName := Customer.Name;
-    end;
 }

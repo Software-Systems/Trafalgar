@@ -292,4 +292,6 @@ codeunit 53001 "Trafalgar General Codeunit"
         end;
         Exit(RetValueEncodedText);
     end;
+
+
 }

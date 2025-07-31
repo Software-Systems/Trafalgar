@@ -172,7 +172,10 @@ report 50112 "Sales Quote"
             column(CompanyLegalOffice; LegalOfficeTxt)
             {
             }
-            column(SalesPersonName; SalespersonPurchaserName)
+            column(SalesPersonName; "Assigned User ID")
+            {
+            }
+            column(AssignedUserID; "Assigned User ID")
             {
             }
             column(ShipmentMethodDescription; ShipmentMethodDescription)

@@ -21,12 +21,30 @@ pageextension 50029 PagExtVendorLedgerEntries extends "Vendor Ledger Entries"
                     SendVendorRecords(VendLedgEntry);
                 end;
             }
+            action(OpenDocument)
+            {
+                Caption = 'Open Docs';
+                Image = OpenJournal;
+                ToolTip = 'Open Documents.';
+                ApplicationArea = all;
+                trigger OnAction()
+                begin
+                    TrafalgarSharepointCodeunit.OpenSharepointDocument(25, Rec."Document No.");
+                end;
+            }
         }
         modify(RemittanceAdvance)
         {
             Visible = false;
         }
+        addafter("&Navigate_Promoted")
+        {
+            actionref(OpenDocument_Promoted; OpenDocument)
+            {
+            }
+        }
     }
+
     local procedure SendVendorRecords(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     var
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -42,4 +60,5 @@ pageextension 50029 PagExtVendorLedgerEntries extends "Vendor Ledger Entries"
 
     var
         RemittanceAdviceTxt: Label 'Remittance Advice';
+        TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
 }

@@ -10,6 +10,14 @@ pageextension 50021 PagExtCustomerCard extends "Customer Card"
                 ToolTip = 'Specifies the value of the Shortcut Dimension 6 Code field.', Comment = '%';
             }
         }
+        addafter(ABN)
+        {
+            field(NZBN; Rec.NZBN)
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the NZBN field.', Comment = '%';
+            }
+        }
         modify("VAT Bus. Posting Group")
         {
             ShowMandatory = true;
@@ -71,6 +79,10 @@ pageextension 50021 PagExtCustomerCard extends "Customer Card"
                 SubPageLink = "Customer No." = field("No.");
                 UpdatePropagation = Both;
             }
+        }
+        modify("Shipment Method Code")
+        {
+            ShowMandatory = True;
         }
     }
 
@@ -154,6 +166,14 @@ pageextension 50021 PagExtCustomerCard extends "Customer Card"
     }
     var
         Editable_Boolean: Boolean;
+
+    /*
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        if Rec."Shipment Method Code" = '' then
+            Error('Please fill up Shipment Method Code For Customer : \%1 - %2', Rec."No.", Rec.Name);
+    end;
+    */
 
     trigger OnAfterGetRecord()
     var

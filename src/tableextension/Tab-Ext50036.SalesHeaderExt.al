@@ -143,7 +143,7 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         GenLedSetup: Record "General Ledger Setup";
     begin
         GenLedSetup.Get();
-        Documents := GenLedSetup."SharePoint Document Path" + '' + "No.";
+        Documents := GenLedSetup."SharePoint Document Path" + '/SalesDocs/' + "No.";
         Modify();
     end;
 
@@ -216,6 +216,28 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         if Rec."Assigned User ID" = '' then
             "Assigned User ID" := UserId;
     end;
+
+    // procedure GeneratePDFFile()
+    // var
+    //     TempBlob: Codeunit "Temp Blob";
+    //     FileOutstream: Outstream;
+    //     FileInstream: InStream;
+    //     RecRef: RecordRef;
+    //     FldRef: FieldRef;
+    //     FileName: Text;
+    // begin
+    //     TempBlob.CreateOutstream(FileOutstream);
+    //     RecRef.GetTable(Rec);
+    //     FldRef := RecRef.Field(Rec.FieldNo("No."));
+    //     FldRef.SetRange(Rec."No.");
+    //     if RecRef.FindFirst() then begin
+    //         Report.SaveAs(50110, '', ReportFormat::Pdf, FileOutstream, RecRef);
+    //         TempBlob.CreateInStream(FileInstream);
+    //         FileName := 'Sales ' + Format("Document Type") + ' ' + Rec."No." + '.pdf';
+    //         DownloadFromStream(FileInstream, '', '', '', FileName);
+    //     end;
+    // end;
+
 
 
 }

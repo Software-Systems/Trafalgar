@@ -13,7 +13,34 @@ tableextension 50037 TabExtSalesLine extends "Sales Line"
             Caption = 'Production Order Status';
             DataClassification = CustomerContent;
         }
-        field(50110; "Shortcut Dimension 6 Code"; Code[20])
+        field(55013; "Shortcut Dimension 3 Code"; Code[20])
+        {
+            CaptionClass = '1,2,3';
+            Caption = 'Shortcut Dimension 3 Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
+            "Global Dimension No." = const(3)));
+        }
+        field(55014; "Shortcut Dimension 4 Code"; Code[20])
+        {
+            CaptionClass = '1,2,4';
+            Caption = 'Shortcut Dimension 4 Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
+            "Global Dimension No." = const(4)));
+        }
+        field(55015; "Shortcut Dimension 5 Code"; Code[20])
+        {
+            CaptionClass = '1,2,5';
+            Caption = 'Shortcut Dimension 5 Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
+            "Global Dimension No." = const(5)));
+        }
+        field(55016; "Shortcut Dimension 6 Code"; Code[20])
         {
             CaptionClass = '1,2,6';
             Caption = 'Shortcut Dimension 6 Code';
@@ -21,6 +48,31 @@ tableextension 50037 TabExtSalesLine extends "Sales Line"
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
             "Global Dimension No." = const(6)));
+        }
+        field(55017; "Shortcut Dimension 7 Code"; Code[20])
+        {
+            CaptionClass = '1,2,7';
+            Caption = 'Shortcut Dimension 7 Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
+            "Global Dimension No." = const(7)));
+        }
+        field(55018; "Shortcut Dimension 8 Code"; Code[20])
+        {
+            CaptionClass = '1,2,8';
+            Caption = 'Shortcut Dimension 8 Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
+            "Global Dimension No." = const(8)));
+        }
+        field(78020; "Assigned User ID"; Code[50])
+        {
+            Caption = 'Assigned User ID';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Sales Header"."Assigned User ID" where("Document Type" = Field("Document Type"), "No." = field("Document No.")));
         }
     }
 

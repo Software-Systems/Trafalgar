@@ -1036,14 +1036,14 @@ report 50110 TrafalgarOrderConfirmation
         {
             Type = Word;
             LayoutFile = '.\Reports\Layouts\TrafalgarStandardSalesOrderConf.docx';
-            Caption = 'Standard Sales Order Confirmation (Word)';
+            Caption = 'Trafalgar Sales Order Confirmation (Word)';
             Summary = 'Simple layout with most necessary fields.';
         }
         layout("StandardOrderConfirmationEmail.docx")
         {
             Type = Word;
             LayoutFile = '.\Reports\Layouts\TrafalgarStandardOrderConfirmationEmail.docx';
-            Caption = 'Standard Sales Order Confirmation Email (Word)';
+            Caption = 'Trafalgar Sales Order Confirmation Email (Word)';
             Summary = 'Layout intended for an email body.';
         }
     }

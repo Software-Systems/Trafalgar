@@ -142,19 +142,6 @@ codeunit 50101 "Extention for Sales Subscriber"
             ProductionOrder."Customer Name" := SalesHeader."Sell-to Customer Name";
             ProductionOrder."Order Release Date" := SalesHeader.SystemModifiedAt;
         end;
-        // If SalesLine2.get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.") then begin
-        //     SalesLine2."Production Order No." := ProductionOrder."No.";
-        //     If ProductionOrder.Status = ProductionOrder.Status::Planned then
-        //         SalesLine2."Production Order Status" := SalesLine2."Production Order Status"::"1 Prod Planned"
-        //     else
-        //         if ProductionOrder.Status = ProductionOrder.Status::Released then
-        //             SalesLine2."Production Order Status" := SalesLine2."Production Order Status"::"2 Prod Released"
-        //         else
-        //             if ProductionOrder.Status = ProductionOrder.Status::Finished then
-        //                 SalesLine2."Production Order Status" := SalesLine2."Production Order Status"::"3 Prod Completed";
-
-        //     SalesLine2.Modify(true);
-        // end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post (Yes/No)", OnAfterConfirmPost, '', true, true)]
@@ -178,18 +165,6 @@ codeunit 50101 "Extention for Sales Subscriber"
                 until SalesLine.Next() = 0;
         end;
     end;
-
-    //[EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", OnBeforeReopenSalesDoc, '', true, true)]
-    //local procedure ReleaseSalesDocument_OnBeforeReopenSalesDoc(var SalesHeader: Record "Sales Header")
-    //begin
-    //if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then
-    //if TrafalgarGeneralCodeunit.IsUserAllowedToReopen(UserId) = True then begin
-    //if SalesHeader."Order Status" IN [SalesHeader."Order Status"::"7 Packed"] then
-    //    Error('%1 %2 is not Allowed to Reopen. Order Status is %3.', SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Order Status");
-    //end
-    //else
-    // Error('You do not have the correct privileges to re-open an Order that is Packed.');
-    //end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", OnBeforePerformManualReleaseProcedure, '', true, true)]
     local procedure OnBeforePerformManualReleaseProcedure(var SalesHeader: Record "Sales Header")
@@ -218,36 +193,44 @@ codeunit 50101 "Extention for Sales Subscriber"
                 Message('Shipment Date for Sales %1 %2 is %3, Please change to today or future date.', SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Shipment Date");
         end;
 
-        if UserSetup.Get(UserId) then begin
-            if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
-                SalesHeader.CalcFields(SalesHeader.Amount, SalesHeader."Amount Including VAT");
-                if not UserSetup."Can Always Release CIA orders" then begin
-                    SalesLine.SetRange("Document No.", SalesHeader."No.");
-                    SalesLine.SetRange(Type, SalesLine.Type::Item);
-                    if SalesLine.FindSet() then
-                        DocumentTotal.CalculateSalesSubPageTotals(SalesHeader, SalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-                    if (SalesHeader."Payment Terms Code" = 'CIA') then
-                        if (SalesHeader.GetTotalSalesPaid() < SalesHeader."Amount Including VAT") then
-                            Error(NotAllowedtoRelease);
-                end;
-
-                if Customer.Get(SalesHeader."Bill-to Customer No.") then
-                    OverDueBalance := Customer.CalcOverdueBalance();
-
-                if OverDueBalance > 0 then begin
-                    if not UserSetup."Can Release Order for Overdue" then
-                        if not Confirm('This customer has an overdue balance, do you want to continue?') then begin
-                            Error(ExceededOverdueEntries);
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+            SalesHeader.CalcFields(SalesHeader.Amount, SalesHeader."Amount Including VAT");
+            SalesLine.SetRange("Document No.", SalesHeader."No.");
+            SalesLine.SetRange(Type, SalesLine.Type::Item);
+            if SalesLine.FindSet() then
+                DocumentTotal.CalculateSalesSubPageTotals(SalesHeader, SalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
+            if (SalesHeader."Payment Terms Code" = 'CIA') then
+                if (SalesHeader.GetTotalSalesPaid() < SalesHeader."Amount Including VAT") then begin
+                    UserSetup.Reset;
+                    UserSetup.Setrange(UserSetup."User ID", UserId);
+                    UserSetup.Setrange(UserSetup."Can Always Release CIA orders", True);
+                    if UserSetup.FindFirst() then begin
+                        if Confirm('You are about to release a CIA Customer Order without the full Payment. Do want to Proceed?') then begin
+                            //Still Proceed
                         end
-                        else begin
-                            //User Has Authority To Release
-                            if Confirm(ConfirmationOverdueEntries) then begin
-                                //Sales Order Released
-                            end
-                            else
-                                Error('%1 Still Remains In Open Status.', SalesHeader."No.")
-                        end;
+                        else
+                            Exit;
+                    end
+                    else
+                        Error(NotAllowedtoRelease);
                 end;
+
+            if Customer.Get(SalesHeader."Bill-to Customer No.") then
+                OverDueBalance := Customer.CalcOverdueBalance();
+
+            if OverDueBalance > 0 then begin
+                if not UserSetup."Can Release Order for Overdue" then
+                    if not Confirm('This customer has an overdue balance, do you want to continue?') then begin
+                        Error(ExceededOverdueEntries);
+                    end
+                    else begin
+                        //User Has Authority To Release
+                        if Confirm(ConfirmationOverdueEntries) then begin
+                            //Sales Order Released
+                        end
+                        else
+                            Error('%1 Still Remains In Open Status.', SalesHeader."No.")
+                    end;
             end;
         end;
         CheckForPlannedProductionOrders(SalesHeader, SalesLine);
@@ -500,58 +483,7 @@ codeunit 50101 "Extention for Sales Subscriber"
             if TrafalgarGeneralCodeunit.CheckUserCanApplyGenericDiscount() = false then
                 Error('You do not have permission to create system wide discounts, please chat to Kate');
     end;
-    /*
-    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnValidateLineDiscountPercentOnAfterTestStatusOpen, '', true, true)]
-    local procedure SalesLine_OnValidateLineDiscountPercentOnAfterTestStatusOpen(CurrentFieldNo: Integer)
-    var
-        TrafalgarGeneralCodeunit: Codeunit "Trafalgar General Codeunit";
-    begin
-        if CurrentFieldNo IN [27, 28] then begin
-            if TrafalgarGeneralCodeunit.CheckUserCanApplyGenericDiscount() = false then
-                Error('You do not have permission to create system wide discounts, please chat to Kate');
-        end;
-    end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnBeforeUpdateLineDiscPct, '', true, true)]
-    local procedure SalesLine_OnBeforeUpdateLineDiscPct(var SalesLine: Record "Sales Line")
-    var
-        TrafalgarGeneralCodeunit: Codeunit "Trafalgar General Codeunit";
-    begin
-        if TrafalgarGeneralCodeunit.CheckUserCanApplyGenericDiscount() = false then
-            Error('You do not have permission to create system wide discounts, please chat to Kate');
-    end;
-    */
-    /*
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromSalesDocSalesLine, '', false, false)]
-    procedure CopyDocumentMgt_OnAfterCopySalesLineFromSalesDocSalesLine(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; IncludeHeader: Boolean; RecalculateLines: Boolean)
-    begin
-        ToSalesLine."Product Code" := FromSalesLine."Product Code";
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromSalesLineBuffer, '', false, false)]
-    procedure CopyDocumentMgt_OnAfterCopySalesLineFromSalesLineBuffer(var ToSalesLine: Record "Sales Line"; FromSalesInvLine: Record "Sales Invoice Line"; IncludeHeader: Boolean; RecalculateLines: Boolean; var TempDocSalesLine: Record "Sales Line" temporary; ToSalesHeader: Record "Sales Header"; FromSalesLineBuf: Record "Sales Line"; var FromSalesLine2: Record "Sales Line")
-    begin
-        ToSalesLine."Product Code" := FromSalesInvLine."Product Code";
-        ToSalesLine.MODIFY;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromSalesCrMemoLineBuffer, '', false, false)]
-    procedure CopyDocumentMgt_OnAfterCopySalesLineFromSalesCrMemoLineBuffer(var ToSalesLine: Record "Sales Line"; FromSalesCrMemoLine: Record "Sales Cr.Memo Line"; IncludeHeader: Boolean; RecalculateLines: Boolean; var TempDocSalesLine: Record "Sales Line" temporary; ToSalesHeader: Record "Sales Header"; FromSalesLineBuf: Record "Sales Line"; FromSalesLine: Record "Sales Line")
-    begin
-        ToSalesLine."Product Code" := FromSalesCrMemoLine."Product Code";
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromSalesShptLineBuffer, '', false, false)]
-    local procedure CopyDocumentMgt_OnAfterCopySalesLineFromSalesShptLineBuffer(var ToSalesLine: Record "Sales Line"; FromSalesShipmentLine: Record "Sales Shipment Line"; IncludeHeader: Boolean; RecalculateLines: Boolean; var TempDocSalesLine: Record "Sales Line" temporary; ToSalesHeader: Record "Sales Header"; FromSalesLineBuf: Record "Sales Line"; ExactCostRevMandatory: Boolean)
-    begin
-        ToSalesLine."Product Code" := FromSalesShipmentLine."Product Code";
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", OnAfterCopySalesLineFromReturnRcptLineBuffer, '', false, false)]
-    local procedure CopyDocumentMgt_OnAfterCopySalesLineFromReturnRcptLineBuffer(var ToSalesLine: Record "Sales Line"; FromReturnReceiptLine: Record "Return Receipt Line"; IncludeHeader: Boolean; RecalculateLines: Boolean; var TempDocSalesLine: Record "Sales Line" temporary; ToSalesHeader: Record "Sales Header"; FromSalesLineBuf: Record "Sales Line"; CopyItemTrkg: Boolean)
-    begin
-    end;
-    */
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Line", OnAfterValidateEvent, "Qty. To Ship", true, true)]
     local procedure SalesLine_OnAfterValidateEvent_QtyToShip(var Rec: Record "Sales Line")
@@ -569,5 +501,57 @@ codeunit 50101 "Extention for Sales Subscriber"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Page, Page::"Sales Order Planning", OnBeforeCreateOrder, '', True, True)]
+    local procedure SalesOrderPlanning_OnBeforeCreateOrder(var CreateProdOrder: Boolean; var HideValidationDialog: Boolean; var SalesLine: Record "Sales Line"; var SalesPlanningLine: Record "Sales Planning Line")
+    var
+        Item: Record Item;
+    begin
+        if Item.Get(SalesLine."No.") then begin
+            if Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Stock" then
+                CreateProdOrder := False;
+        end;
+    end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document-Mailing", OnBeforeSendEmail, '', false, false)]
+    local procedure OnBeforeSendEmail(var ReportUsage: Integer; var TempEmailItem: Record "Email Item" temporary)
+    begin
+        case
+            ReportUsage of
+            //85://Customer Statement
+            //2://Sales Invoice
+            3://Sales CN
+                TempEmailItem."Send CC" := 'accounts@tgroup.com.au';
+        //5, 6: //Purchase Quote / Order
+        //0, 1, 89: // Sales Quote & Order & Proforma Invoice
+        //88: // Sales Invoice Draft
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", OnBeforeReleaseSalesDoc, '', false, false)]
+    local procedure ReleaseSalesDocument_OnBeforeReleaseSalesDoc(PreviewMode: Boolean; var SalesHeader: Record "Sales Header")
+    begin
+        if not PreviewMode then begin
+            if SalesHeader."Document Type" IN [SalesHeader."Document Type"::Quote, SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice] then
+                if SalesHeader."Shipment Method Code" = '' then
+                    Error('Please Fill Up Shipment Method Code For Sales %1 %2.', SalesHeader."Document Type", SalesHeader."No.");
+        end;
+    end;
+    /*
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Order", 'OnBeforeInsertSalesOrderHeader', '', true, true)]
+    local procedure BlockQuoteToOrderIfNoShipmentMethod(SalesQuoteHeader: Record "Sales Header")
+    begin
+        if SalesQuoteHeader."Shipment Method Code" = '' then
+            Error('Cannot create Sales Order. Shipment Method Code is required.');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeModifyEvent', '', true, true)]
+    local procedure PreventReleaseWithMissingShipmentMethod(var Rec: Record "Sales Header"; xRec: Record "Sales Header"; RunTrigger: Boolean)
+    begin
+
+        if (xRec.Status <> Rec.Status)
+            and (Rec.Status = Rec.Status::Released)
+            and (Rec."Shipment Method Code" = '') then
+            Error('Cannot release Sales Order. Shipment Method Code is required.');
+    end;
+    */
 }
