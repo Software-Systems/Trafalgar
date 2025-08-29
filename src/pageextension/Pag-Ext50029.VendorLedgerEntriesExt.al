@@ -28,8 +28,13 @@ pageextension 50029 PagExtVendorLedgerEntries extends "Vendor Ledger Entries"
                 ToolTip = 'Open Documents.';
                 ApplicationArea = all;
                 trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                    FileURL: Text;
                 begin
-                    TrafalgarSharepointCodeunit.OpenSharepointDocument(25, Rec."Document No.");
+                    FileURL := TrafalgarSharepointCodeunit.OpenSharepointDocument(25, Rec."Document No.");
+                    if FileURL <> '' then
+                        Hyperlink(FileUrl);
                 end;
             }
         }

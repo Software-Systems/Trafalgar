@@ -26,6 +26,25 @@ pageextension 50026 PagExtVendorCard extends "Vendor Card"
     actions
     {
         // Add changes to page actions here
+        addafter(Email)
+        {
+            action(OpenDocument)
+            {
+                Caption = 'Open Docs';
+                Image = OpenJournal;
+                ToolTip = 'Open Documents.';
+                ApplicationArea = all;
+                trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                    FileURL: Text;
+                begin
+                    FileURL := TrafalgarSharepointCodeunit.OpenSharepointDocument(23, Rec."No.");
+                    if FileURL <> '' then
+                        Hyperlink(FileUrl);
+                end;
+            }
+        }
         addafter(PayVendor)
         {
             action(HistoricalPurchases)
@@ -42,6 +61,12 @@ pageextension 50026 PagExtVendorCard extends "Vendor Card"
         {
             actionref("HistoricalPurchase_Promoted"; HistoricalPurchases)
             { }
+        }
+        addafter(Email_Promoted)
+        {
+            actionref("Open_Docs_Promoted"; OpenDocument)
+            {
+            }
         }
     }
 

@@ -83,6 +83,7 @@ pageextension 50041 PagExtSalesQuote extends "Sales Quote"
         }
         addbefore("Create &Task")
         {
+            /*
             action(OpenDocument)
             {
                 Caption = 'Open Docs';
@@ -92,6 +93,22 @@ pageextension 50041 PagExtSalesQuote extends "Sales Quote"
                 trigger OnAction()
                 begin
                     Hyperlink(Rec.Documents);
+                end;
+            }
+            */
+            action(OpenDocument)
+            {
+                Caption = 'Open Docs';
+                Image = OpenJournal;
+                ToolTip = 'Open Documents.';
+                ApplicationArea = all;
+                trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                begin
+                    if Rec.Documents = '' then
+                        Rec.Documents := TrafalgarSharepointCodeunit.OpenSharepointDocument(36, Rec."No.");
+                    Hyperlink(Rec.Documents)
                 end;
             }
             action(OpenMaps)

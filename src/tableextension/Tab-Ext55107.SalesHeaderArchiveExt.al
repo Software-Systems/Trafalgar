@@ -75,6 +75,18 @@ tableextension 55107 TabExtSalesHeaderArchive extends "Sales Header Archive"
         {
             DataClassification = CustomerContent;
         }
+        field(50131; "Packed Location"; Text[100])
+        {
+            DataClassification = CustomerContent;
+        }
+        field(50141; "Picked By"; Enum "Trafalgar User")
+        {
+            DataClassification = CustomerContent;
+        }
+        field(50142; "Checked By"; Enum "Trafalgar User")
+        {
+            DataClassification = CustomerContent;
+        }
         field(51000; "Amount Paid"; Decimal)
         {
             Caption = 'Amount Paid';

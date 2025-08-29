@@ -30,6 +30,20 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
                     Rec.ValidateShortcutDimCode(6, ShortcutDimCode[6]);
                 end;
             }
+            field("Picked By"; Rec."Picked By")
+            {
+                ApplicationArea = All;
+                Editable = FieldVisible;
+                Visible = FieldVisible;
+                ToolTip = 'Specifies the value of the Picked By field.', Comment = '%';
+            }
+            field("Checked By"; Rec."Checked By")
+            {
+                ApplicationArea = All;
+                Editable = FieldVisible;
+                Visible = FieldVisible;
+                ToolTip = 'Specifies the value of the Checked By field.', Comment = '%';
+            }
         }
         modify("No.")
         {
@@ -154,6 +168,15 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
     }
     var
         ShortcutDimCode: array[8] of Code[20];
+        StylExpTxt: Text[50];
+        TrafalgarGenCodeunit: Codeunit "Trafalgar General Codeunit";
+        FieldVisible: Boolean;
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetAscending("No.", false);
+        FieldVisible := TrafalgarGenCodeunit.CheckPickedAndCheckedEnabled();
+    end;
 
     trigger OnAfterGetRecord()
     var
@@ -162,12 +185,6 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
         CLEAR(ChangeFieldColour);
         StylExpTxt := ChangeFieldColour.ChangeSalesOrderStatuColor(Rec);
         Rec.ShowShortcutDimCode(ShortcutDimCode);
-    end;
-
-    trigger OnOpenPage()
-    begin
-        //Rec.SetCurrentKey("Sell-to Customer No.", "No.");
-        Rec.SetAscending("No.", false);
     end;
 
     local procedure UpdateStatusOnHeader(var SalesLine: Record "Sales Line")
@@ -289,6 +306,4 @@ pageextension 59305 PagExtSalesOrderList extends "Sales Order List"
         Progress.CLOSE();
     end;
 
-    var
-        StylExpTxt: Text[50];
 }

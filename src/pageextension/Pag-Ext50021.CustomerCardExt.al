@@ -90,7 +90,6 @@ pageextension 50021 PagExtCustomerCard extends "Customer Card"
     {
         addafter(Email)
         {
-            /*
             action(OpenDocument)
             {
                 Caption = 'Open Docs';
@@ -98,11 +97,15 @@ pageextension 50021 PagExtCustomerCard extends "Customer Card"
                 ToolTip = 'Open Documents.';
                 ApplicationArea = all;
                 trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                    FileURL: Text;
                 begin
-                    Rec.SharepointOpenDocsCustomer;
+                    FileURL := TrafalgarSharepointCodeunit.OpenSharepointDocument(18, Rec."No.");
+                    if FileURL <> '' then
+                        Hyperlink(FileUrl);
                 end;
             }
-            */
             action(HistoricalSales)
             {
                 ApplicationArea = All;
@@ -159,9 +162,9 @@ pageextension 50021 PagExtCustomerCard extends "Customer Card"
             actionref(EmailStatementAll_Promoted; EmailstatementAll)
             {
             }
-            // actionref("Open_Docs_Promoted"; OpenDocument)
-            // {
-            // }
+            actionref("Open_Docs_Promoted"; OpenDocument)
+            {
+            }
         }
     }
     var

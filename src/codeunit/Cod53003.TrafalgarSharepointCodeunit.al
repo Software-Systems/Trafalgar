@@ -34,7 +34,7 @@ codeunit 53003 "Trafalgar Sharepoint Codeunit"
         end;
     end;
 
-    procedure OpenSharepointDocument(ParTableID: Integer; ParDocNo: Code[20])
+    procedure OpenSharepointDocument(ParTableID: Integer; ParDocNo: Code[20]): Text
     var
         HttpClient: HttpClient;
         HttpRequestMessage: HttpRequestMessage;
@@ -66,13 +66,33 @@ codeunit 53003 "Trafalgar Sharepoint Codeunit"
                 begin
                     FolderName := 'GLEntriesDocs';
                 end;
+            18:
+                begin
+                    FolderName := 'CustomerDocs';
+                end;
             21:
                 begin
                     FolderName := 'CustLedgerEntriesDocs';
                 end;
+            23:
+                begin
+                    FolderName := 'VendorDocs';
+                end;
             25:
                 begin
                     FolderName := 'VendLedgerEntriesDocs';
+                end;
+            36:
+                begin
+                    FolderName := 'SalesDocs';
+                end;
+            38:
+                begin
+                    FolderName := 'PurchDocs';
+                end;
+            1170:
+                begin
+                    FolderName := 'UserTasks';
                 end;
         end;
         FolderName := FolderName + '/' + ParDocNo;
@@ -111,7 +131,7 @@ codeunit 53003 "Trafalgar Sharepoint Codeunit"
         end else
             Error('Failed to send HTTP request to SharePoint');
 
-        Hyperlink(FileUrl);
+        exit(FileUrl);
     end;
 
     procedure GetOAuthToken() AuthToken: SecretText

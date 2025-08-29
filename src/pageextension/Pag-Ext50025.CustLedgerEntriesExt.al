@@ -66,8 +66,12 @@ pageextension 50025 PagExtCustLedgerEntries extends "Customer Ledger Entries"
                 ToolTip = 'Open Documents.';
                 ApplicationArea = all;
                 trigger OnAction()
+                var
+                    FileURL: Text;
                 begin
-                    TrafalgarSharepointCodeunit.OpenSharepointDocument(21, Rec."Document No.");
+                    FileURL := TrafalgarSharepointCodeunit.OpenSharepointDocument(21, Rec."Document No.");
+                    if FileURL <> '' then
+                        Hyperlink(FileUrl);
                 end;
             }
         }

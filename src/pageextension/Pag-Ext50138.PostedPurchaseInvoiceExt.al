@@ -55,6 +55,7 @@ pageextension 50138 PagExtPostedPurchaseInvoice extends "Posted Purchase Invoice
         }
         addafter(Approvals)
         {
+            /*
             action(OpenDocument)
             {
                 Caption = 'Open Docs';
@@ -64,6 +65,35 @@ pageextension 50138 PagExtPostedPurchaseInvoice extends "Posted Purchase Invoice
                 trigger OnAction()
                 begin
                     Hyperlink(Rec.Documents);
+                end;
+            }
+            */
+            action(OpenDocument)
+            {
+                Caption = 'Open Docs';
+                Image = OpenJournal;
+                ToolTip = 'Open Documents.';
+                ApplicationArea = all;
+                trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                    DocNo: Code[20];
+                    FileURL: Text;
+                begin
+                    if Rec.Documents = '' then begin
+                        if Rec."Quote No." <> '' then
+                            DocNo := Rec."Quote No."
+                        else begin
+                            if Rec."Order No." = '' then
+                                DocNo := Rec."Pre-Assigned No."
+                            else
+                                DocNo := Rec."Order No.";
+                        end;
+                        FileURL := TrafalgarSharepointCodeunit.OpenSharepointDocument(38, DocNo);
+                    end
+                    else
+                        FileURL := Rec.Documents;
+                    Hyperlink(FileURL);
                 end;
             }
         }

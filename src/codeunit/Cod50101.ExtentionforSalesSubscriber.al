@@ -18,10 +18,11 @@ codeunit 50101 "Extention for Sales Subscriber"
             repeat
                 Item.Get(SalesLine."No.");
                 if Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Order" then begin
-                    ProductionOrder.SetRange("Sales Order No.", SalesLine."Document No.");
-                    ProductionOrder.SetRange("Sales Order Line No.", SalesLine."Line No.");
+                    ProductionOrder.Reset();
+                    ProductionOrder.SetRange(ProductionOrder."Sales Order No.", SalesLine."Document No.");
+                    ProductionOrder.SetRange(ProductionOrder."Sales Order Line No.", SalesLine."Line No.");
                     // ProductionOrder.SetRange(Status, ProductionOrder.Status::Planned);
-                    if ProductionOrder.IsEmpty then
+                    if Not ProductionOrder.Findset then
                         Message(NotAllowedErr);
                 end;
             until SalesLine.Next() = 0;

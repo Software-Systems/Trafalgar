@@ -58,21 +58,4 @@ pageextension 55159 PagExtSalesOrderArchive extends "Sales Order Archive"
             }
         }
     }
-    trigger OnAfterGetRecord()
-    begin
-        WorkDescription := GetWorkDescription();
-    end;
-
-    var
-        WorkDescription: Text;
-
-    procedure GetWorkDescription() WorkDescription: Text
-    var
-        TypeHelper: Codeunit "Type Helper";
-        InStream: InStream;
-    begin
-        Rec.CalcFields("Work Description");
-        Rec."Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), Rec.FieldName(Rec."Work Description")));
-    end;
 }

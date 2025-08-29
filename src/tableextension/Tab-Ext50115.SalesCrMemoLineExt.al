@@ -1,4 +1,4 @@
-tableextension 50113 TabExtSalesInvoiceLine extends "Sales Invoice Line"
+tableextension 50115 TabExtSalesCrMemoLine extends "Sales Cr.Memo Line"
 {
     fields
     {
@@ -12,23 +12,11 @@ tableextension 50113 TabExtSalesInvoiceLine extends "Sales Invoice Line"
             Caption = 'Production Order Status';
             DataClassification = CustomerContent;
         }
-        field(50141; "Picked By"; Enum "Trafalgar User")
-        {
-            Editable = false;
-            FieldClass = FlowField;
-            CalcFormula = lookup("Sales Invoice Header"."Picked By" where("No." = field("Document No.")));
-        }
-        field(50142; "Checked By"; Enum "Trafalgar User")
-        {
-            Editable = false;
-            FieldClass = FlowField;
-            CalcFormula = lookup("Sales Invoice Header"."Checked By" where("No." = field("Document No.")));
-        }
         field(50111; "Method Of Enquiry"; Enum "Method Of Enquiry")
         {
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = lookup("Sales Invoice Header"."Method Of Enquiry" where("No." = field("Document No.")));
+            CalcFormula = lookup("Sales Cr.Memo Header"."Method Of Enquiry" where("No." = field("Document No.")));
         }
 
         field(55013; "Shortcut Dimension 3 Code"; Code[20])
@@ -93,7 +81,6 @@ tableextension 50113 TabExtSalesInvoiceLine extends "Sales Invoice Line"
         }
         field(52020; "Sales Order Created By"; Code[100])
         {
-            Caption = 'MyField';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Change Log Entry"."User ID" where
@@ -105,12 +92,17 @@ tableextension 50113 TabExtSalesInvoiceLine extends "Sales Invoice Line"
             Caption = 'Assigned User ID';
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = lookup("Sales Invoice Header"."Assigned User ID" where("No." = field("Document No.")));
+            CalcFormula = lookup("Sales Cr.Memo Header"."Assigned User ID" where("No." = field("Document No.")));
+        }
+        field(78030; "Reason Code"; Code[10])
+        {
+            Caption = 'Reason Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Sales Cr.Memo Header"."Reason Code" where("No." = field("Document No.")));
         }
 
     }
-
-
 
     procedure GetSalesOrderCreatedBy() RetValue: Text
     var

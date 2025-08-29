@@ -13,6 +13,20 @@ pageextension 50046 PagExtSalesOrderSubform extends "Sales Order Subform"
             {
                 ApplicationArea = all;
             }
+            field("Picked By"; Rec."Picked By")
+            {
+                ApplicationArea = All;
+                Editable = FieldVisible;
+                Visible = FieldVisible;
+                ToolTip = 'Specifies the value of the Picked By field.', Comment = '%';
+            }
+            field("Checked By"; Rec."Checked By")
+            {
+                ApplicationArea = All;
+                Editable = FieldVisible;
+                Visible = FieldVisible;
+                ToolTip = 'Specifies the value of the Checked By field.', Comment = '%';
+            }
         }
         addafter(Quantity)
         {
@@ -36,7 +50,14 @@ pageextension 50046 PagExtSalesOrderSubform extends "Sales Order Subform"
             Editable = true;
             Visible = true;
         }
-
-
     }
+
+    var
+        TrafalgarGenCodeunit: Codeunit "Trafalgar General Codeunit";
+        FieldVisible: Boolean;
+
+    trigger OnOpenPage()
+    begin
+        FieldVisible := TrafalgarGenCodeunit.CheckPickedAndCheckedEnabled()
+    end;
 }

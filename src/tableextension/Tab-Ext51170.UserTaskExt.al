@@ -90,6 +90,14 @@ tableextension 51170 TabExtUserTask extends "User Task"
             ExtendedDatatype = URL;
             DataClassification = CustomerContent;
         }
+        modify(Title)
+        {
+            trigger OnAfterValidate()
+            begin
+                if GLSetup.Get() then
+                    Rec.Documents := GLSetup."SharePoint Document Path" + '/UserTasks/' + Format(Rec.ID) + '-' + Rec.Title;
+            end;
+        }
     }
 
     keys
@@ -99,15 +107,11 @@ tableextension 51170 TabExtUserTask extends "User Task"
 
         }
     }
-
-    trigger OnAfterInsert()
     var
         GLSetup: Record "General Ledger Setup";
+
+    trigger OnAfterInsert()
     begin
         Clear("Assigned To");
-
-        if GLSetup.Get() then
-            Rec.Documents := GLSetup."SharePoint Document Path" + '/UserTasks/' + Format(Rec.ID) + '-' + Rec.Title;
     end;
-
 }

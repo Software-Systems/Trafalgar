@@ -107,6 +107,15 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         {
             DataClassification = CustomerContent;
         }
+        field(50141; "Picked By"; Enum "Trafalgar User")
+        {
+            DataClassification = CustomerContent;
+        }
+        field(50142; "Checked By"; Enum "Trafalgar User")
+        {
+            DataClassification = CustomerContent;
+        }
+
         modify("Assigned User ID")
         {
             TableRelation = "User Setup"."User ID" where("Sales Doc Assigned" = const(true));
@@ -140,11 +149,11 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
 
     trigger OnAfterInsert()
     var
-        GenLedSetup: Record "General Ledger Setup";
+        TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
     begin
-        GenLedSetup.Get();
-        Documents := GenLedSetup."SharePoint Document Path" + '/SalesDocs/' + "No.";
-        Modify();
+        //GenLedSetup.Get();
+        //Documents := GenLedSetup."SharePoint Document Path" + '/SalesDocs/' + "No.";
+        Documents := TrafalgarSharepointCodeunit.OpenSharepointDocument(36, Rec."No.");
     end;
 
     procedure GetSalesLineItemPrompt() RetValue: Text;

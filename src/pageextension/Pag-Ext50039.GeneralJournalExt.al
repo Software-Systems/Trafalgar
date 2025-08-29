@@ -57,10 +57,14 @@ pageextension 50039 PagExtGeneralJournal extends "General Journal"
                 ToolTip = 'Open Documents.';
                 ApplicationArea = all;
                 trigger OnAction()
+                var
+                    FileURL: Text;
                 begin
                     if Rec."Journal No." = '' then
                         Rec."Journal No." := TrafalgarSharepointCodeunit.GenerateJournalNo();
-                    TrafalgarSharepointCodeunit.OpenSharepointDocument(17, Rec."Journal No.");
+                    FileURL := TrafalgarSharepointCodeunit.OpenSharepointDocument(17, Rec."Journal No.");
+                    if FileURL <> '' then
+                        Hyperlink(FileUrl);
                 end;
             }
         }

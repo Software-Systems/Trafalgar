@@ -35,6 +35,7 @@ pageextension 50144 PagExtPostedSalesCreditMemos extends "Posted Sales Credit Me
     {
         addafter("Update Document")
         {
+            /*
             action(OpenDocument)
             {
                 Caption = 'Open Docs';
@@ -44,6 +45,32 @@ pageextension 50144 PagExtPostedSalesCreditMemos extends "Posted Sales Credit Me
                 trigger OnAction()
                 begin
                     Hyperlink(Rec.Documents);
+                end;
+            }
+            */
+            action(OpenDocument)
+            {
+                Caption = 'Open Docs';
+                Image = OpenJournal;
+                ToolTip = 'Open Documents.';
+                ApplicationArea = all;
+                trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                    DocNo: Code[20];
+                    FileURL: Text;
+                begin
+                    if Rec.Documents = '' then begin
+                        if Rec."Return Order No." <> '' then
+                            DocNo := Rec."Return Order No."
+                        else
+                            DocNo := Rec."No.";
+
+                        FileURL := TrafalgarSharepointCodeunit.OpenSharepointDocument(36, DocNo);
+                    end
+                    else
+                        FileURL := Rec.Documents;
+                    Hyperlink(FileURL);
                 end;
             }
         }

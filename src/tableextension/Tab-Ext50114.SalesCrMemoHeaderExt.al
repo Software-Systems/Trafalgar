@@ -79,6 +79,14 @@ tableextension 50114 TabExtSalesCrMemoHeader extends "Sales Cr.Memo Header"
         {
             DataClassification = CustomerContent;
         }
+        field(50141; "Picked By"; Enum "Trafalgar User")
+        {
+            DataClassification = CustomerContent;
+        }
+        field(50142; "Checked By"; Enum "Trafalgar User")
+        {
+            DataClassification = CustomerContent;
+        }
         field(78010; "Sales Return Created By"; Text[100])
         {
             DataClassification = CustomerContent;

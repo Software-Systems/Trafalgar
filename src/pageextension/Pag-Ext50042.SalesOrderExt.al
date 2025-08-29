@@ -89,6 +89,28 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
                 Editable = Rec."Lost Opportunity";
                 ToolTip = 'Specifies the value of the Lost Reason field.', Comment = '%';
             }
+            field("Picked By"; Rec."Picked By")
+            {
+                ApplicationArea = All;
+                Editable = FieldVisible;
+                Visible = FieldVisible;
+                ToolTip = 'Specifies the value of the Picked By field.', Comment = '%';
+                trigger OnValidate()
+                begin
+                    CurrPage.Update();
+                end;
+            }
+            field("Checked By"; Rec."Checked By")
+            {
+                ApplicationArea = All;
+                Editable = FieldVisible;
+                Visible = FieldVisible;
+                ToolTip = 'Specifies the value of the Checked By field.', Comment = '%';
+                trigger OnValidate()
+                begin
+                    CurrPage.Update();
+                end;
+            }
             field(GetTotalSalesPaid; Rec.GetTotalSalesPaid())
             {
                 Caption = 'Total Paid';
@@ -138,6 +160,7 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
         // Add changes to page actions here
         addbefore("Send IC Sales Order")
         {
+            /*
             action(OpenDocument)
             {
                 Caption = 'Open Docs';
@@ -146,6 +169,22 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
                 ApplicationArea = all;
                 trigger OnAction()
                 begin
+                    Hyperlink(Rec.Documents);
+                end;
+            }
+            */
+            action(OpenDocument)
+            {
+                Caption = 'Open Docs';
+                Image = OpenJournal;
+                ToolTip = 'Open Documents.';
+                ApplicationArea = all;
+                trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                begin
+                    if Rec.Documents = '' then
+                        Rec.Documents := TrafalgarSharepointCodeunit.OpenSharepointDocument(36, Rec."No.");
                     Hyperlink(Rec.Documents);
                 end;
             }
@@ -267,6 +306,44 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
         NoStockMessage: Text;
         ShortcutDimCode: array[8] of Code[20];
         AssignedUserID: Code[50];
+        TrafalgarGenCodeunit: Codeunit "Trafalgar General Codeunit";
+        FieldVisible: Boolean;
+
+    trigger OnOpenPage()
+    begin
+        FieldVisible := TrafalgarGenCodeunit.CheckPickedAndCheckedEnabled();
+    end;
+
+    trigger OnAfterGetRecord()
+    var
+        Customer: Record Customer;
+    begin
+        AmountEdit := true;
+        if Rec."Payment Processed" then
+            AmountEdit := false;
+
+        UserSetup.Get(UserId);
+        if UserSetup."Can Reprocess Payment" then
+            AmountEdit := true;
+
+        NoStockMessage := Rec.CheckInStockQuantity;
+        if Rec."No." <> xRec."No." then begin
+            if NoStockMessage <> '' then
+                Message('%1', NoStockMessage);
+
+            if Customer.Get(Rec."Bill-to Customer No.") then
+                TrafalgarGenCodeunit.PopUpNotification(Customer."Important Notes");
+
+            TrafalgarGenCodeunit.PopUpNotification(Rec.GetSalesLineItemPrompt);
+
+            if Rec."Method Of Enquiry" = Rec."Method Of Enquiry"::" " then
+                Message('Please fill in method of enquiry');
+        end;
+
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
+
+        AssignedUserID := Rec."Assigned User ID";
+    end;
 
     local procedure ItemInventoryCheck(var SalesLine: Record "Sales Line")
     var
@@ -415,37 +492,7 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
         exit(false);
     end;
 
-    trigger OnAfterGetRecord()
-    var
-        Customer: Record Customer;
-        TrafalgarGenCodeunit: Codeunit "Trafalgar General Codeunit";
-    begin
-        AmountEdit := true;
-        if Rec."Payment Processed" then
-            AmountEdit := false;
 
-        UserSetup.Get(UserId);
-        if UserSetup."Can Reprocess Payment" then
-            AmountEdit := true;
-
-        NoStockMessage := Rec.CheckInStockQuantity;
-        if Rec."No." <> xRec."No." then begin
-            if NoStockMessage <> '' then
-                Message('%1', NoStockMessage);
-
-            if Customer.Get(Rec."Bill-to Customer No.") then
-                TrafalgarGenCodeunit.PopUpNotification(Customer."Important Notes");
-
-            TrafalgarGenCodeunit.PopUpNotification(Rec.GetSalesLineItemPrompt);
-
-            if Rec."Method Of Enquiry" = Rec."Method Of Enquiry"::" " then
-                Message('Please fill in method of enquiry');
-        end;
-
-        Rec.ShowShortcutDimCode(ShortcutDimCode);
-
-        AssignedUserID := Rec."Assigned User ID";
-    end;
 
     /*
         trigger OnQueryClosePage(CloseAction: Action): Boolean

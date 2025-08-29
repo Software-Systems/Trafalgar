@@ -1,32 +1,15 @@
-pageextension 50044 PagExtSalesCreditMemo extends "Sales Credit Memo"
+pageextension 50043 PagExtSalesInvoice extends "Sales Invoice"
 {
     layout
     {
-        addafter(Status)
-        {
-            field(Documents; Rec.Documents)
-            {
-                ApplicationArea = all;
-            }
-        }
+
     }
+
     actions
     {
-        addafter(ApplyEntries)
+        // Add changes to page actions here
+        addafter(CalculateInvoiceDiscount)
         {
-            /*
-            action(OpenDocument)
-            {
-                Caption = 'Open Docs';
-                Image = OpenJournal;
-                ToolTip = 'Open Documents.';
-                ApplicationArea = all;
-                trigger OnAction()
-                begin
-                    Hyperlink(Rec.Documents);
-                end;
-            }
-            */
             action(OpenDocument)
             {
                 Caption = 'Open Docs';
@@ -43,9 +26,10 @@ pageextension 50044 PagExtSalesCreditMemo extends "Sales Credit Memo"
                 end;
             }
         }
-        addafter(ApplyEntries_Promoted)
+
+        addafter(CalculateInvoiceDiscount_Promoted)
         {
-            actionref("OpenDocs_Promoted"; OpenDocument)
+            actionref("Open_Docs_Promoted"; OpenDocument)
             {
             }
         }

@@ -15,6 +15,7 @@ pageextension 50050 PagExtPurchaseOrder extends "Purchase Order"
     {
         addafter("Archive Document")
         {
+            /*
             action(OpenDocument)
             {
                 Caption = 'Open Docs';
@@ -23,6 +24,23 @@ pageextension 50050 PagExtPurchaseOrder extends "Purchase Order"
                 ApplicationArea = all;
                 trigger OnAction()
                 begin
+                    Hyperlink(Rec.Documents);
+                end;
+            }
+            */
+
+            action(OpenDocument)
+            {
+                Caption = 'Open Docs';
+                Image = OpenJournal;
+                ToolTip = 'Open Documents.';
+                ApplicationArea = all;
+                trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                begin
+                    if Rec.Documents = '' then
+                        Rec.Documents := TrafalgarSharepointCodeunit.OpenSharepointDocument(38, Rec."No.");
                     Hyperlink(Rec.Documents);
                 end;
             }

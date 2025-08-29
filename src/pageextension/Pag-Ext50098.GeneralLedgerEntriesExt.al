@@ -25,12 +25,15 @@ pageextension 50020 PagExtGeneralLedgerEntries extends "General Ledger Entries"
                 trigger OnAction()
                 var
                     JournalNo: Text;
+                    FileURL: Text;
                 begin
                     if Rec."Journal No." = '' then
                         JournalNo := TrafalgarSharepointCodeunit.UpdateGLEntryJournalNo(Rec."Entry No.")
                     else
                         JournalNo := Rec."Journal No.";
-                    TrafalgarSharepointCodeunit.OpenSharepointDocument(17, JournalNo);
+                    FileURL := TrafalgarSharepointCodeunit.OpenSharepointDocument(17, JournalNo);
+                    if FileURL <> '' then
+                        Hyperlink(FileURL);
                 end;
             }
         }

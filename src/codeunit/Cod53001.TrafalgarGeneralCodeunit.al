@@ -15,6 +15,23 @@ codeunit 53001 "Trafalgar General Codeunit"
     //    exit(False);
     //end;
 
+    procedure GetMySession(): Text
+    var
+        MySessionSettings: SessionSettings;
+    begin
+        MySessionSettings.Init();
+        exit(MySessionSettings.ProfileId);
+    end;
+
+    procedure CheckPickedAndCheckedEnabled(): Boolean
+    begin
+        if (GetMySession = '_SALES') Or (GetMySession() = '_INVENTORY') then
+            exit(True)
+        else
+            exit(False);
+    end;
+
+
     procedure CheckUserCanApplyGenericDiscount(): Boolean
     var
         UserSetup: Record "User Setup";

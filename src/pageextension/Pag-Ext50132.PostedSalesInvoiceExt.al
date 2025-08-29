@@ -55,6 +55,20 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
                 ToolTip = 'Specifies the value of the Quote Created By field.', Comment = '%';
                 Editable = false;
             }
+            field("Picked By"; Rec."Picked By")
+            {
+                ApplicationArea = All;
+                Editable = FieldVisible;
+                Visible = FieldVisible;
+                ToolTip = 'Specifies the value of the Picked By field.', Comment = '%';
+            }
+            field("Checked By"; Rec."Checked By")
+            {
+                ApplicationArea = All;
+                Editable = FieldVisible;
+                Visible = FieldVisible;
+                ToolTip = 'Specifies the value of the Checked By field.', Comment = '%';
+            }
             field(GetTotalSalesPaid; Rec.GetTotalSalesPaid())
             {
                 Caption = 'Total Paid';
@@ -69,6 +83,7 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
         // Add changes to page actions here
         addafter(Customer)
         {
+            /*
             action(OpenDocument)
             {
                 Caption = 'Open Docs';
@@ -78,6 +93,36 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
                 trigger OnAction()
                 begin
                     Hyperlink(Rec.Documents);
+                end;
+            }
+            */
+            action(OpenDocument)
+            {
+                Caption = 'Open Docs';
+                Image = OpenJournal;
+                ToolTip = 'Open Documents.';
+                ApplicationArea = all;
+
+                trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                    DocNo: Code[20];
+                    FileURL: Text;
+                begin
+                    if Rec.Documents = '' then begin
+                        if Rec."Quote No." <> '' then
+                            DocNo := Rec."Quote No."
+                        else begin
+                            if Rec."Order No." = '' then
+                                DocNo := Rec."Pre-Assigned No."
+                            else
+                                DocNo := Rec."Order No.";
+                        end;
+                        FileURL := TrafalgarSharepointCodeunit.OpenSharepointDocument(36, DocNo);
+                    end
+                    else
+                        FileURL := Rec.Documents;
+                    Hyperlink(FileURL);
                 end;
             }
             action(EditExtDocNo)
@@ -129,7 +174,12 @@ pageextension 50132 PagExtPostedSalesInvoice extends "Posted Sales Invoice"
             }
         }
     }
-
     var
-        myInt: Integer;
+        TrafalgarGenCodeunit: Codeunit "Trafalgar General Codeunit";
+        FieldVisible: Boolean;
+
+    trigger OnOpenPage()
+    begin
+        FieldVisible := TrafalgarGenCodeunit.CheckPickedAndCheckedEnabled()
+    end;
 }

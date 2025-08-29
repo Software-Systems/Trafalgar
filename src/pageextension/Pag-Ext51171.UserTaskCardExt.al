@@ -128,8 +128,13 @@ pageextension 51171 UserTaskCardExt extends "User Task Card"
                 ToolTip = 'Open Documents.';
                 ApplicationArea = all;
                 trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                    FileURL: Text;
                 begin
-                    Hyperlink(Rec.Documents);
+                    FileURL := TrafalgarSharepointCodeunit.OpenSharepointDocument(1170, Format(Rec.ID) + '-' + Rec.Title);
+                    if FileURL <> '' then
+                        Hyperlink(FileURL);
                 end;
             }
         }
@@ -140,6 +145,7 @@ pageextension 51171 UserTaskCardExt extends "User Task Card"
             }
         }
     }
+
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var

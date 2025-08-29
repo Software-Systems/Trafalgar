@@ -27,10 +27,8 @@ tableextension 50038 TabExtPurchaseHeader extends "Purchase Header"
     }
     trigger OnAfterInsert()
     var
-        GenLedSetup: Record "General Ledger Setup";
+        TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
     begin
-        GenLedSetup.Get();
-        Documents := GenLedSetup."SharePoint Document Path" + '/PurchDocs/' + "No.";
-        Modify();
+        Documents := TrafalgarSharepointCodeunit.OpenSharepointDocument(38, Rec."No.");
     end;
 }

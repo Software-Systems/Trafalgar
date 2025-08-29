@@ -15,6 +15,7 @@ pageextension 50052 PagExtPurchaseCreditMemo extends "Purchase Credit Memo"
     {
         addafter(ApplyEntries)
         {
+            /*
             action(OpenDocument)
             {
                 Caption = 'Open Docs';
@@ -25,6 +26,23 @@ pageextension 50052 PagExtPurchaseCreditMemo extends "Purchase Credit Memo"
                 begin
                     Hyperlink(Rec.Documents);
                 end;
+            }
+            */
+            action(OpenDocument)
+            {
+                Caption = 'Open Docs';
+                Image = OpenJournal;
+                ToolTip = 'Open Documents.';
+                ApplicationArea = all;
+                trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
+                begin
+                    if Rec.Documents = '' then
+                        Rec.Documents := TrafalgarSharepointCodeunit.OpenSharepointDocument(38, Rec."No.");
+                    Hyperlink(Rec.Documents);
+                end;
+
             }
         }
         addafter(ApplyEntries_Promoted)
