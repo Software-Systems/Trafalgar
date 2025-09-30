@@ -30,7 +30,7 @@ tableextension 50018 TabExtCustomer extends Customer
             Caption = 'Buyer Email Address';
             DataClassification = CustomerContent;
         }
-        field(50104; "Accounts Email Address"; Text[100])
+        field(50104; "Accounts Email Address"; Text[250])
         {
             Caption = 'Accounts Email Address';
             DataClassification = CustomerContent;

@@ -316,6 +316,19 @@ report 50113 "Delivery Docket"
                 column(SippedQuantity; Line."Quantity Shipped")
                 {
                 }
+                column(AssemblyLine_No; AssemblyLine_No)
+                {
+                }
+                column(AssemblyLine_Description; AssemblyLine_Description)
+                {
+                }
+                column(AssemblyLine_Qty; AssemblyLine_Qty)
+                {
+                }
+                column(AssemblyLine_UOM; AssemblyLine_UOM)
+                {
+                }
+
                 column(RemainingQty; Line.Quantity - line."Quantity Shipped")
                 {
                 }
@@ -373,6 +386,10 @@ report 50113 "Delivery Docket"
                         TotalAmountVAT += "Amount Including VAT" - Amount;
                         TotalAmountInclVAT += Round("Amount Including VAT" * "Qty. to Invoice" / Quantity, Currency."Amount Rounding Precision");
                     end;
+                    AssemblyLine_No := TrafalgarGeneralCodeunit.GetLineAdditionalInfo(37, Line."Document No.", Line."Line No.", 1);
+                    AssemblyLine_Description := TrafalgarGeneralCodeunit.GetLineAdditionalInfo(37, Line."Document No.", Line."Line No.", 2);
+                    AssemblyLine_Qty := TrafalgarGeneralCodeunit.GetLineAdditionalInfo(37, Line."Document No.", Line."Line No.", 3);
+                    AssemblyLine_UOM := TrafalgarGeneralCodeunit.GetLineAdditionalInfo(37, Line."Document No.", Line."Line No.", 4);
                     TotalQty += Line.Quantity;
                     FormattedLinePrice := Format(LinePrice, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::UnitAmountFormat, CurrencyCode));
                     FormattedLineAmount := Format(LineAmount, 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, CurrencyCode));
@@ -459,6 +476,12 @@ report 50113 "Delivery Docket"
                 ShowWorkDescription := "Work Description".HasValue();
                 if PaymentTerm.Get(Header."Payment Terms Code") then;
                 AmountPaidFormat := '$ ' + Format(Header."Amount Paid");
+            end;
+
+            trigger OnPostDataItem()
+            begin
+                "Order Status" := "Order Status"::"8 Printed";
+                Modify;
             end;
         }
     }
@@ -554,6 +577,10 @@ report 50113 "Delivery Docket"
         TotalQtyOrder: Decimal;
         ShowWorkDescription: Boolean;
         TrafalgarGeneralCodeunit: Codeunit "Trafalgar General Codeunit";
+        AssemblyLine_No: Text;
+        AssemblyLine_Description: Text;
+        AssemblyLine_Qty: Text;
+        AssemblyLine_UOM: Text;
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     var

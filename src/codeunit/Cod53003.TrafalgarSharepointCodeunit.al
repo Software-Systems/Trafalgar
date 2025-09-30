@@ -130,7 +130,6 @@ codeunit 53003 "Trafalgar Sharepoint Codeunit"
             end;
         end else
             Error('Failed to send HTTP request to SharePoint');
-
         exit(FileUrl);
     end;
 

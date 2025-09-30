@@ -150,7 +150,7 @@ codeunit 50104 "Ext for Production Subscriber"
         if ProdOrderRoutingLine.findset then
             repeat
                 if ProdOrderRoutingLine."Run Time" <> 0 then begin
-                    ProdOrderRoutingLine."Run Time" := ProdOrderRoutingLine."Run Time" * ProdOrderRoutingLine."Input Quantity";
+                    ProdOrderRoutingLine."Run Time" := ProdOrderRoutingLine.GetDefaultRunTime * ProdOrderRoutingLine."Input Quantity";
                     ProdOrderRoutingLine.Modify();
                 end;
             until ProdOrderRoutingLine.Next() = 0;
@@ -268,13 +268,13 @@ codeunit 50104 "Ext for Production Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Order Status Management", OnBeforeOnRun, '', true, true)]
-    local procedure OnBeforeRun(var ProductionOrder: Record "Production Order")
+    local procedure ProdOrderStatusManagement_OnBeforeRun(var ProductionOrder: Record "Production Order")
     begin
         ProductionOrder."Delete Confirmation" := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Production Order", OnBeforeDeleteEvent, '', true, true)]
-    local procedure MyProcedure(var Rec: Record "Production Order")
+    local procedure ProductionOrder_OnBeforeDeleteEvent(var Rec: Record "Production Order")
     var
         Confirmation: Codeunit "Confirm Management";
     begin
@@ -287,20 +287,74 @@ codeunit 50104 "Ext for Production Subscriber"
     local procedure OnAfterModifyProdOrderLine(var Rec: Record "Prod. Order Routing Line")
     begin
         if Rec."Run Time" <> 0 then
-            Rec."Run Time" := Rec."Run Time" * Rec."Input Quantity";
+            Rec."Run Time" := Rec.GetDefaultRunTime * Rec."Input Quantity";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Routing Line", OnAfterValidateEvent, "Input Quantity", true, true)]
     local procedure OnAfterInsertLine(var Rec: Record "Prod. Order Routing Line")
     begin
         if Rec."Run Time" <> 0 then
-            Rec."Run Time" := Rec."Run Time" * Rec."Input Quantity";
+            Rec."Run Time" := Rec.GetDefaultRunTime * Rec."Input Quantity";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Routing Line", OnAfterCopyFromPlanningRoutingLine, '', true, true)]
     local procedure OnAfterCopyFromPlanningRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PlanningRoutingLine: Record "Planning Routing Line")
     begin
         ProdOrderRoutingLine."Run Time" := PlanningRoutingLine."Run Time" * PlanningRoutingLine."Input Quantity";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", OnBeforePostingItemJnlFromProduction, '', true, true)]
+    local procedure ItemJournalLine_OnBeforePostingItemJnlFromProduction(var ItemJournalLine: Record "Item Journal Line")
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        TotalDefaultRunTime: Decimal;
+        RunTimeDiscrepancy: Boolean;
+    begin
+        RunTimeDiscrepancy := False;
+        ProdOrderRoutingLine.Reset;
+        ProdOrderRoutingLine.Setrange(ProdOrderRoutingLine."Prod. Order No.", ItemJournalLine."Order No.");
+        if ProdOrderRoutingLine.findset then begin
+            repeat
+                TotalDefaultRunTime := ProdOrderRoutingLine.GetDefaultRunTime * ProdOrderRoutingLine."Input Quantity";
+                if ABS(TotalDefaultRunTime - ProdOrderRoutingLine."Run Time") > 10 then
+                    RunTimeDiscrepancy := True;
+            until ProdOrderRoutingLine.Next() = 0;
+
+            if RunTimeDiscrepancy = True then begin
+                if Confirm('There is a discrepancy  on the Runtime of the Routing Lines. Do you want to continue?') then begin
+                    //Go Through Posting
+                end
+                else
+                    Error('You Have Cancelled Post Production Order');
+            end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Change Status on Prod. Order", OnBeforeSet, '', true, true)]
+    local procedure ChangeStatusonProdOrder_OnBeforeSet(var ProdOrder: Record "Production Order")
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        TotalDefaultRunTime: Decimal;
+        RunTimeDiscrepancy: Boolean;
+    begin
+        RunTimeDiscrepancy := False;
+        ProdOrderRoutingLine.Reset;
+        ProdOrderRoutingLine.Setrange(ProdOrderRoutingLine."Prod. Order No.", ProdOrder."No.");
+        if ProdOrderRoutingLine.findset then begin
+            repeat
+                TotalDefaultRunTime := ProdOrderRoutingLine.GetDefaultRunTime * ProdOrderRoutingLine."Input Quantity";
+                if ABS(TotalDefaultRunTime - ProdOrderRoutingLine."Run Time") > 10 then
+                    RunTimeDiscrepancy := True;
+            until ProdOrderRoutingLine.Next() = 0;
+
+            if RunTimeDiscrepancy = True then begin
+                if Confirm('There is a discrepancy  on the Runtime of the Routing Lines. Do you want to continue?') then begin
+                    //Go Through Posting
+                end
+                else
+                    Error('You Have Cancelled Post Production Order');
+            end;
+        end;
     end;
 
     // [EventSubscriber(ObjectType::Report, Report::"Refresh Production Order", OnAfterRefreshProdOrder, '', true, true)]

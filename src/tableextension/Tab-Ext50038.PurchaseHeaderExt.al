@@ -25,7 +25,7 @@ tableextension 50038 TabExtPurchaseHeader extends "Purchase Header"
             FieldClass = FlowField;
         }
     }
-    trigger OnAfterInsert()
+    trigger OnInsert()
     var
         TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
     begin

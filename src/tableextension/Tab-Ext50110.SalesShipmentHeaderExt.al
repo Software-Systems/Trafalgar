@@ -98,6 +98,10 @@ tableextension 50110 TabExtSalesShipmentHeader extends "Sales Shipment Header"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
-
+        field(78030; "Released By"; Text[100])
+        {
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
     }
 }

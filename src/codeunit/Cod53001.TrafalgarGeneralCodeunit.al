@@ -25,7 +25,7 @@ codeunit 53001 "Trafalgar General Codeunit"
 
     procedure CheckPickedAndCheckedEnabled(): Boolean
     begin
-        if (GetMySession = '_SALES') Or (GetMySession() = '_INVENTORY') then
+        if (GetMySession = '_SALES') Or (GetMySession() = '_INVENTORY') Or (GetMySession() = '_MANUFACTURING') then
             exit(True)
         else
             exit(False);
@@ -310,5 +310,51 @@ codeunit 53001 "Trafalgar General Codeunit"
         Exit(RetValueEncodedText);
     end;
 
-
+    procedure GetLineAdditionalInfo(ParTableID: Integer; ParDocNo: Code[20]; ParLineNo: Integer; ParType: Integer): Text
+    var
+        RetValue: Text;
+        AssembletoOrderLink: Record "Assemble-to-Order Link";
+        AssemblyLine: Record "Assembly Line";
+        PostedAssembletoOrderLink: Record "Posted Assemble-to-Order Link";
+        PostedAssemblyLine: Record "Posted Assembly Line";
+        ExtendedTextLine: Record "Extended Text Line";
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        Clear(RetValue);
+        CASE ParTableID of
+            37:
+                begin
+                    //Component BOM
+                    AssembletoOrderLink.Reset;
+                    AssembletoOrderLink.Setrange(AssembletoOrderLink.Type, AssembletoOrderLink.Type::Sale);
+                    AssembletoOrderLink.Setrange(AssembletoOrderLink."Assembly Document Type", AssembletoOrderLink."Assembly Document Type"::Order);
+                    AssembletoOrderLink.Setrange(AssembletoOrderLink."Document Type", AssembletoOrderLink."Document Type"::Order);
+                    AssembletoOrderLink.Setrange(AssembletoOrderLink."Document No.", ParDocNo);
+                    AssembletoOrderLink.Setrange(AssembletoOrderLink."Document Line No.", ParLineNo);
+                    if AssembletoOrderLink.findset then begin
+                        AssemblyLine.Reset;
+                        AssemblyLine.Setrange(AssemblyLine."Document Type", AssemblyLine."Document Type"::Order);
+                        AssemblyLine.Setrange(AssemblyLine."Document No.", AssembletoOrderLink."Assembly Document No.");
+                        if AssemblyLine.findset then BEGIN
+                            repeat
+                                if RetValue <> '' then
+                                    RetValue := RetValue + TypeHelper.CRLFSeparator();
+                                case
+                                    ParType of
+                                    1:
+                                        RetValue := RetValue + AssemblyLine."No.";
+                                    2:
+                                        RetValue := RetValue + AssemblyLine.Description;
+                                    3:
+                                        RetValue := RetValue + Format(AssemblyLine.Quantity);
+                                    4:
+                                        RetValue := RetValue + Format(AssemblyLine."Unit of Measure Code");
+                                end;
+                            until AssemblyLine.next = 0;
+                        END;
+                    end;
+                end;
+        end;
+        EXIT(RetValue);
+    end;
 }

@@ -97,7 +97,11 @@ tableextension 50114 TabExtSalesCrMemoHeader extends "Sales Cr.Memo Header"
             Caption = 'Assigned User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
-
+        }
+        field(78030; "Released By"; Text[100])
+        {
+            Editable = false;
+            DataClassification = CustomerContent;
         }
     }
 }

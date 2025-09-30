@@ -21,7 +21,6 @@ codeunit 50105 "EmailNotify_PostedInvoice"
         Subject: Text;
         BodyTxt: Text;
         SubjectTxt: Label 'Trafalgar Invoice %1', Comment = '%1=Invoice No.';
-
     begin
         if RecipientEmailNotValid(SalesInvoiceHeader) then
             exit;
@@ -40,7 +39,7 @@ codeunit 50105 "EmailNotify_PostedInvoice"
         Customer: Record Customer;
     begin
         Customer.Get(SalesInvHdr."Sell-to Customer No.");
-        if Customer."E-Mail" = '' then
+        if Customer."Accounts Email Address" = '' then
             exit(true);
     end;
 
@@ -64,7 +63,9 @@ codeunit 50105 "EmailNotify_PostedInvoice"
         Customer: Record Customer;
     begin
         Customer.Get(SalesInvHdr."Sell-to Customer No.");
-        if Customer."E-Mail" <> '' then
+        if Customer."Accounts Email Address" <> '' then
+            exit(Customer."Accounts Email Address")
+        else
             exit(Customer."E-Mail");
     end;
 

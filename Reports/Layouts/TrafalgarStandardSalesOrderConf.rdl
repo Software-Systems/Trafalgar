@@ -3106,6 +3106,9 @@ AAAA7rKEw88hhJMFiyEaDgAAAAAAAAAAAACwM2LhAAAAAAAAAAAAAMBDTENzEQ4vhmg4AAAAAAAAAAAA
         <Field Name="SalesPersonName">
           <DataField>SalesPersonName</DataField>
         </Field>
+        <Field Name="AssignedUserID">
+          <DataField>AssignedUserID</DataField>
+        </Field>
         <Field Name="SelltoCustomerNo">
           <DataField>SelltoCustomerNo</DataField>
         </Field>

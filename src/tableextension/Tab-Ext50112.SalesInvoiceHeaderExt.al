@@ -32,6 +32,7 @@ tableextension 50112 TabExtSalesInvoiceHeader extends "Sales Invoice Header"
             FieldClass = FlowField;
             CalcFormula = lookup(User."User Name" where("User Security ID" = field(SystemModifiedBy)));
         }
+
         field(50105; "CC Payment Date"; Date)
         {
             Caption = 'CC Payment Date';
@@ -98,6 +99,12 @@ tableextension 50112 TabExtSalesInvoiceHeader extends "Sales Invoice Header"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
+        field(78030; "Released By"; Text[100])
+        {
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
+
     }
 
     procedure GetTotalSalesPaid() TotalPaid: Decimal

@@ -35,6 +35,11 @@ pageextension 50042 PagExtSalesOrder extends "Sales Order"
         }
         addafter(Status)
         {
+            field("Released By"; Rec."Released By")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Released By field.', Comment = '%';
+            }
             field("Method Of Enquiry"; Rec."Method Of Enquiry")
             {
                 ApplicationArea = All;

@@ -63,6 +63,7 @@ codeunit 50101 "Extention for Sales Subscriber"
             if Confirm('Do you want to update the Delivery Date ?') then
                 SalesOrderHeader."Requested Delivery Date" := TODAY;
         end;
+        SalesOrderHeader.Documents := SalesQuoteHeader.Documents;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Quote to Invoice", OnBeforeInsertSalesInvoiceHeader, '', false, false)]
@@ -165,6 +166,12 @@ codeunit 50101 "Extention for Sales Subscriber"
                     SalesLine.Modify(false);
                 until SalesLine.Next() = 0;
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", OnAfterManualReleaseSalesDoc, '', true, true)]
+    local procedure OnAfterPerformManualReleaseProcedure(var SalesHeader: Record "Sales Header")
+    begin
+        SalesHeader."Released By" := UserId;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", OnBeforePerformManualReleaseProcedure, '', true, true)]

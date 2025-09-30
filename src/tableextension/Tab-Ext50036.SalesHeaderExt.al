@@ -58,6 +58,7 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
             FieldClass = FlowField;
             CalcFormula = lookup(User."User Name" where("User Security ID" = field(SystemModifiedBy)));
         }
+
         /*
         field(50105; "CC Payment Date"; Date)
         {
@@ -115,7 +116,11 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
         {
             DataClassification = CustomerContent;
         }
-
+        field(78030; "Released By"; Text[100])
+        {
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
         modify("Assigned User ID")
         {
             TableRelation = "User Setup"."User ID" where("Sales Doc Assigned" = const(true));
@@ -151,8 +156,6 @@ tableextension 50036 TabExtSalesHeader extends "Sales Header"
     var
         TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
     begin
-        //GenLedSetup.Get();
-        //Documents := GenLedSetup."SharePoint Document Path" + '/SalesDocs/' + "No.";
         Documents := TrafalgarSharepointCodeunit.OpenSharepointDocument(36, Rec."No.");
     end;
 

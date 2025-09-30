@@ -30,4 +30,8 @@ enum 50103 "Method Of Enquiry"
     {
         Caption = 'Hubspot Conversion';
     }
+    value(70; "LinkedIn")
+    {
+        Caption = 'LinkedIn';
+    }
 }

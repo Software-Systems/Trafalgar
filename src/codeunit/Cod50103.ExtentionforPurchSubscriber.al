@@ -1,5 +1,11 @@
 codeunit 50103 "Extention for Purch Subscriber"
 {
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Quote to Order", OnCreatePurchHeaderOnBeforePurchOrderHeaderModify, '', false, false)]
+    procedure PurchQuotetoOrder_OnCreatePurchHeaderOnBeforePurchOrderHeaderModify(var PurchHeader: Record "Purchase Header"; var PurchOrderHeader: Record "Purchase Header")
+    begin
+        PurchOrderHeader.Documents := PurchHeader.Documents;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnApproveApprovalRequest', '', false, false)]
     local procedure OnApproveApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     var
