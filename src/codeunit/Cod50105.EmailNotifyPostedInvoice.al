@@ -101,6 +101,6 @@ codeunit 50105 "EmailNotify_PostedInvoice"
     var
         Email: Codeunit Email;
     begin
-        Email.Send(_EmailMessage, Enum::"Email Scenario"::Default);
+        Email.Send(_EmailMessage, Enum::"Email Scenario"::"Sales Invoice");
     end;
 }

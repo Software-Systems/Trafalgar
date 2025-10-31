@@ -42,6 +42,25 @@ enum 50104 "Trafalgar User"
     {
         Caption = 'Kyra';
     }
+
+    // Newly added users (alphabetically inserted, safe new IDs)
+    value(95; Louisa)
+    {
+        Caption = 'Louisa';
+    }
+    value(96; Luke)
+    {
+        Caption = 'Luke';
+    }
+    value(97; Nicolas)
+    {
+        Caption = 'Nicolas';
+    }
+    value(98; Nick)
+    {
+        Caption = 'Nick';
+    }
+
     value(100; Minh)
     {
         Caption = 'Minh';
@@ -57,6 +76,20 @@ enum 50104 "Trafalgar User"
     value(130; Rita)
     {
         Caption = 'Rita';
+    }
+
+    // Remaining new users after Rita
+    value(140; Treasure)
+    {
+        Caption = 'Treasure';
+    }
+    value(150; Trish)
+    {
+        Caption = 'Trish';
+    }
+    value(160; Tyran)
+    {
+        Caption = 'Tyran';
     }
 
     value(200; Unknown)

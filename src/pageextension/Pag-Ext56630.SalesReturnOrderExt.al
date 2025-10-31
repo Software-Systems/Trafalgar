@@ -64,7 +64,11 @@ pageextension 56630 PagExtSalesReturnOrder extends "Sales Return Order"
                 ToolTip = 'Open Documents.';
                 ApplicationArea = all;
                 trigger OnAction()
+                var
+                    TrafalgarSharepointCodeunit: Codeunit "Trafalgar Sharepoint Codeunit";
                 begin
+                    if Rec.Documents = '' then
+                        Rec.Documents := TrafalgarSharepointCodeunit.OpenSharepointDocument(36, Rec."No.");
                     Hyperlink(Rec.Documents);
                 end;
             }

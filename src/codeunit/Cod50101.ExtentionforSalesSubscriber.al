@@ -74,9 +74,31 @@ codeunit 50101 "Extention for Sales Subscriber"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnBeforePostSalesDoc, '', false, false)]
     procedure SalesPost_OnBeforePostSalesDoc(var SalesHeader: Record "Sales Header")
+    var
+        UserSetup: Record "User Setup";
+        NotAllowedtoPost: Label 'You cannot Post a CIA order if the Order is not fully paid';
     begin
-        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
             SalesHeader.CheckTrafalgarMandatoryFields();
+            SalesHeader.CalcFields(SalesHeader."Amount Including VAT");
+
+            if (SalesHeader."Payment Terms Code" = 'CIA') then
+                if (SalesHeader.GetTotalSalesPaid() < SalesHeader."Amount Including VAT") then begin
+                    UserSetup.Reset;
+                    UserSetup.Setrange(UserSetup."User ID", UserId);
+                    UserSetup.Setrange(UserSetup."Can Always Release CIA orders", True);
+                    if UserSetup.FindFirst() then begin
+                        if Confirm('You are about to post a CIA Customer Order without the full Payment. Do want to Proceed?') then begin
+                            //Still Proceed
+                        end
+                        else begin
+                            Error(NotAllowedtoPost);
+                        end;
+                    end
+                    else
+                        Error('User %1 does not permission to post CIA Customer Order', UserId);
+                end;
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", OnInsertInvoiceHeaderOnAfterSalesInvHeaderTransferFields, '', false, false)]
@@ -189,6 +211,7 @@ codeunit 50101 "Extention for Sales Subscriber"
         ConfirmationOverdueEntries: Label 'This Customer Has Overdue Entries, Or Is Over Their Credit Limit. Do You Still Want to Release This Order ?';
         Customer: Record Customer;
         OverDueBalance: Decimal;
+        RemainingCreditLimit: Decimal;
     begin
         if SalesHeader."Document Type" IN [SalesHeader."Document Type"::Quote, SalesHeader."Document Type"::Order] then begin
             if SalesHeader."Method Of Enquiry" = SalesHeader."Method Of Enquiry"::" " then
@@ -225,6 +248,13 @@ codeunit 50101 "Extention for Sales Subscriber"
 
             if Customer.Get(SalesHeader."Bill-to Customer No.") then
                 OverDueBalance := Customer.CalcOverdueBalance();
+            Customer.CalcFields(Customer."Balance (LCY)");
+            RemainingCreditLimit := Customer."Credit Limit (LCY)" - Customer."Balance (LCY)";
+
+            if RemainingCreditLimit < SalesHeader."Amount Including VAT" then
+                if TrafalgarGeneralCodeunit.GetMySession() = '_SALES' then
+                    Error('%1 %2 ($%3) is exceeding Customer Remaining Credit Limit (%4). You are not allowed to Release Sales %2.',
+                    SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Amount Including VAT", RemainingCreditLimit);
 
             if OverDueBalance > 0 then begin
                 if not UserSetup."Can Release Order for Overdue" then
@@ -497,14 +527,42 @@ codeunit 50101 "Extention for Sales Subscriber"
     local procedure SalesLine_OnAfterValidateEvent_QtyToShip(var Rec: Record "Sales Line")
     var
         Item: Record Item;
+        ProdBOMLine: Record "Production BOM Line";
+        ItemComponent: Record Item;
+        ErrorMessage: Text;
+        TypeHelper: Codeunit "Type Helper";
     begin
         if Rec."Document Type" IN [Rec."Document Type"::Quote, Rec."Document Type"::Order] then begin
             if Rec.Type = Rec.Type::Item then
                 if Item.Get(Rec."No.") then begin
                     if Item.Type = Item.Type::Inventory then
-                        if Item."Manufacturing Policy" <> Item."Manufacturing Policy"::"Make-to-Order" then
+                        if Item."Manufacturing Policy" <> Item."Manufacturing Policy"::"Make-to-Order" then begin
+                            //Check Finished Good
                             if Rec."Qty. to Ship (Base)" > Rec.GetInStockQuantity() then
                                 Message('You Do Not Have Enough Stock For Item %1 - %2', Rec."No.", Rec."Product Code");
+                        end
+                        else begin
+                            //Check Component
+                            Clear(ErrorMessage);
+                            ProdBOMLine.Reset;
+                            ProdBOMLine.Setrange(ProdBOMLine."Production BOM No.", Item."Production BOM No.");
+                            ProdBOMLine.Setrange(ProdBOMLine.Type, ProdBOMLine.Type::Item);
+                            if ProdBOMLine.findset then
+                                repeat
+                                    if ItemComponent.Get(ProdBOMLine."No.") then begin
+                                        if ItemComponent.Type = ItemComponent.Type::Inventory then begin
+                                            ItemComponent.CalcFields(ItemComponent.Inventory);
+                                            if ItemComponent.Inventory < (Rec."Qty. to Ship" * ProdBOMLine."Quantity per") then
+                                                ErrorMessage := ErrorMessage + TypeHelper.CRLFSeparator() + ProdBOMLine."No." + ' - ' + ProdBOMLine.Description;
+                                        end;
+                                    end;
+                                until ProdBOMLine.Next() = 0;
+
+                            if ErrorMessage <> '' then begin
+                                ErrorMessage := Rec."No." + ' *** Component(s) Below Do Not Have Enough Stock : ' + ErrorMessage;
+                                Message(ErrorMessage);
+                            end;
+                        end;
                 end;
         end;
     end;
