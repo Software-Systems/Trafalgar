@@ -13,23 +13,48 @@ codeunit 50105 "EmailNotify_PostedInvoice"
         end;
     end;
 
+    // --------------------------------------------------------------------
+    // SendInvoiceNotification
+    // NOTE: Updated to use Text overload of EmailMessage.Create
+    //       Old List-of-Text logic is kept but commented out for rollback.
+    // --------------------------------------------------------------------
     procedure SendInvoiceNotification(var SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         EmailMessage: Codeunit "Email Message";
-        Recipient: List of [Text];
-        RecipientType: Enum "Email Recipient Type";
+        // Old implementation used List-of-Text recipients (commented out for rollback)
+        //Recipient: List of [Text];
+        //RecipientType: Enum "Email Recipient Type";
         Subject: Text;
         BodyTxt: Text;
         SubjectTxt: Label 'Trafalgar Invoice %1', Comment = '%1=Invoice No.';
     begin
         if RecipientEmailNotValid(SalesInvoiceHeader) then
             exit;
+
+        // ----------------------------------------------------------------
+        // OLD IMPLEMENTATION (CAUSES INVALID EMAIL WHEN FIELD HAS a;b)
+        // ----------------------------------------------------------------
+        /*
         Recipient.Add(GetReceipientEmail(SalesInvoiceHeader));
         //EmailMessage.AddRecipient(RecipientType::Cc, 'accounts@tgroup.com.au');
-        EmailMessage.AddRecipient(RecipientType::Cc, 'nev@softwaresystems.com.au');
+        //EmailMessage.AddRecipient(RecipientType::Cc, 'nev@softwaresystems.com.au');
         Subject := StrSubstNo(SubjectTxt, SalesInvoiceHeader."No.");
         GetBodyTextFromInvoiceReport(SalesInvoiceHeader, BodyTxt);
         EmailMessage.Create(Recipient, Subject, BodyTxt, true);
+        GetInvoiceAttachment(SalesInvoiceHeader, EmailMessage);
+        SendEmail(EmailMessage);
+        */
+
+        // ----------------------------------------------------------------
+        // UPDATED IMPLEMENTATION
+        // - Uses same pattern as Customer Statements
+        // - Passes the email string (which may contain multiple addresses
+        //   separated by ';') directly to EmailMessage.Create.
+        // - This allows multiple recipients in "Accounts Email Address".
+        // ----------------------------------------------------------------
+        Subject := StrSubstNo(SubjectTxt, SalesInvoiceHeader."No.");
+        GetBodyTextFromInvoiceReport(SalesInvoiceHeader, BodyTxt);
+        EmailMessage.Create(GetReceipientEmail(SalesInvoiceHeader), Subject, BodyTxt, true);
         GetInvoiceAttachment(SalesInvoiceHeader, EmailMessage);
         SendEmail(EmailMessage);
     end;
@@ -39,7 +64,7 @@ codeunit 50105 "EmailNotify_PostedInvoice"
         Customer: Record Customer;
     begin
         Customer.Get(SalesInvHdr."Sell-to Customer No.");
-        if Customer."Accounts Email Address" = '' then
+        if (Customer."Accounts Email Address" = '') and (Customer."E-Mail" = '') then
             exit(true);
     end;
 
@@ -76,7 +101,6 @@ codeunit 50105 "EmailNotify_PostedInvoice"
         OutStreamHtml: OutStream;
         InStreamHtml: InStream;
         bReturn: Boolean;
-
     begin
         _TextBody := '';
         CodeUnitTempBlob.CreateOutStream(OutStreamHtml);

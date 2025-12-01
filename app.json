@@ -2,7 +2,7 @@
   "id": "306046f4-32b0-45ba-8e35-cd69c4edbfe5",
   "name": "Trafalgar_Customization",
   "publisher": "Software Systems",
-  "version": "1.0.0.131",
+  "version": "1.0.0.135",
   "brief": "",
   "description": "",
   "privacyStatement": "",
@@ -38,7 +38,7 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "runtime": "14.2",
+  "runtime": "15.0",
   "features": [
     "NoImplicitWith"
   ]

@@ -1,5 +1,35 @@
 pageextension 50025 PagExtCustLedgerEntries extends "Customer Ledger Entries"
 {
+    layout
+    {
+        addafter(Description)
+        {
+            field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
+            {
+                ApplicationArea = All;
+                Visible = False;
+                ToolTip = 'Specifies the value of the Applies-to Doc. Type field.', Comment = '%';
+            }
+            field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
+            {
+                ApplicationArea = All;
+                Visible = False;
+                ToolTip = 'Specifies the value of the Applies-to Doc. No. field.', Comment = '%';
+            }
+            field("Applies-to Ext. Doc. No."; Rec."Applies-to Ext. Doc. No.")
+            {
+                ApplicationArea = All;
+                Visible = False;
+                ToolTip = 'Specifies the value of the Applies-to Ext. Doc. No. field.', Comment = '%';
+            }
+            field("Applies-to ID"; Rec."Applies-to ID")
+            {
+                ApplicationArea = All;
+                Visible = False;
+                ToolTip = 'Specifies the value of the Applies-to ID field.', Comment = '%';
+            }
+        }
+    }
     actions
     {
         // Add changes to page actions here
@@ -74,6 +104,17 @@ pageextension 50025 PagExtCustLedgerEntries extends "Customer Ledger Entries"
                         Hyperlink(FileUrl);
                 end;
             }
+            action(AutoApplyPaymentEntries)
+            {
+                Image = ApplyEntries;
+                ApplicationArea = all;
+                trigger OnAction()
+                var
+                    AutoApplyPaymentEntries: codeunit AutoApplyPaymentEntries;
+                begin
+                    AutoApplyPaymentEntries.Run();
+                end;
+            }
         }
         addafter(Customer_Promoted)
         {
@@ -84,6 +125,9 @@ pageextension 50025 PagExtCustLedgerEntries extends "Customer Ledger Entries"
         addafter("&Navigate_Promoted")
         {
             actionref(OpenDocument_Promoted; OpenDocument)
+            {
+            }
+            actionref(AutoApplyPaymentEntries_Promoted; AutoApplyPaymentEntries)
             {
             }
         }

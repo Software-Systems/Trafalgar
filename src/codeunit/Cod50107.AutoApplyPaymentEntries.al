@@ -2,10 +2,10 @@ codeunit 50107 AutoApplyPaymentEntries
 {
     trigger OnRun()
     begin
-        ApplyPaymentEntries();
+        ApplyPaymentEntries('');
     end;
 
-    local procedure ApplyPaymentEntries()
+    procedure ApplyPaymentEntries(ParCustomerNo: Code[20])
     var
         PaymentCLE: Record "Cust. Ledger Entry";
         InvoiceCLE: Record "Cust. Ledger Entry";
@@ -29,6 +29,8 @@ codeunit 50107 AutoApplyPaymentEntries
         PaymentCLE.SetRange("Document Type", PaymentCLE."Document Type"::Payment);
         PaymentCLE.SetFilter("External Document No.", '<>%1', '');
         PaymentCLE.SetRange(Open, true);
+        if ParCustomerNo <> '' then
+            PaymentCLE.Setrange(PaymentCLE."Customer No.", ParCustomerNo);
         if PaymentCLE.FindSet(true) then begin
             CountInt := PaymentCLE.Count;
             if GuiAllowed then
@@ -37,15 +39,22 @@ codeunit 50107 AutoApplyPaymentEntries
                 CurrentInt += 1;
                 if PaymentCLE.Open then begin
                     Clear(DescriptionTxt);
+                    DescriptionTxt := 'Order ' + PaymentCLE."External Document No."; //Stanley Add #1 (2025-11-24)
                     AccountNo := PaymentCLE."Customer No.";
                     InvoiceCLE.SetCurrentKey("Customer No.", "Document Type");
                     InvoiceCLE.Reset();
                     InvoiceCLE.SetRange("Customer No.", PaymentCLE."Customer No.");
                     InvoiceCLE.SetRange("Document Type", InvoiceCLE."Document Type"::Invoice);
                     InvoiceCLE.SetRange(Open, true);
-                    if InvoiceCLE.FindFirst() then begin
-                        DescriptionTxt := DelStr(InvoiceCLE.Description, 1, 6);
-                        if PaymentCLE."External Document No." = DescriptionTxt then begin
+                    InvoiceCLE.Setrange(Description, DescriptionTxt);//Stanley Add #2 (2025-11-24)
+                    if InvoiceCLE.FindSet then begin
+                        /*
+                        DescriptionTxt := DelStr(InvoiceCLE.Description, 1, 6);   
+                        if PaymentCLE."External Document No." = DescriptionTxt then 
+                        
+                        Stanley Commented (2025-11-24)
+                        */
+                        begin
                             InvoiceCLE.CALCFIELDS(Amount);
                             InvoiceCLE."Applying Entry" := true;
                             InvoiceCLE."Applies-to ID" := 'AUTOAPPLIEDENTRY';

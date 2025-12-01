@@ -43,7 +43,7 @@ codeunit 50106 SendCustomerStatements
     procedure SendCustomerStatement(Customer: Record Customer;
         ParOpenOnly: Boolean;
         ParStartDate: Date;
-        ParEndDate: Date)
+        ParEndDate: Date) IsSuccesfullySent: Boolean;
     var
         EmailMessage: Codeunit "Email Message";
         Recipient: List of [Text];
@@ -51,16 +51,31 @@ codeunit 50106 SendCustomerStatements
         Subject: Text;
         BodyTxt: Text;
         SubjectTxt: Label 'Customer Statement %1', Comment = '%1=Statement No.';
+        ResponseValue: Text;
+        Customer2: Record Customer;
     begin
         if RecipientEmailNotValid(Customer) then
             exit;
         //Recipient.Add(GetReceipientEmail(Customer));
         //EmailMessage.AddRecipient(RecipientType::Cc, 'nikhils@softwaresystems.com.au');
+        IsSuccesfullySent := False;
         Subject := StrSubstNo(SubjectTxt, Customer."No.");
         GetBodyTextFromStatementReport(Customer, BodyTxt);
         EmailMessage.Create(Customer."Accounts Email Address", Subject, BodyTxt, true);
         GetStatementAttachment(Customer, EmailMessage, ParOpenOnly, ParStartDate, ParEndDate);
-        SendEmail(EmailMessage);
+        ResponseValue := SendEmail(EmailMessage);
+        if Customer2.Get(Customer."No.") then begin
+            if ResponseValue = '' then begin
+                Customer2."Statement Last Sent Date" := Today;
+                Customer2."Statement Error Message" := '';
+                IsSuccesfullySent := True;
+            end
+            else begin
+                Customer2."Statement Error Message" := ResponseValue;
+            end;
+            Customer2.Modify;
+        end;
+        exit(IsSuccesfullySent);
     end;
 
     local procedure RecipientEmailNotValid(Customer: Record Customer): Boolean
@@ -151,11 +166,22 @@ codeunit 50106 SendCustomerStatements
         ReturnRecordRef.GetTable(Customer);
     end;
 
-    local procedure SendEmail(var _EmailMessage: Codeunit "Email Message")
+    local procedure SendEmail(var _EmailMessage: Codeunit "Email Message"): Text
     var
         Email: Codeunit Email;
     begin
-        Email.Send(_EmailMessage, Enum::"Email Scenario"::"Customer Statement");
+        if not SendSafe(_EmailMessage) then
+            Exit(GetLastErrorText)
+        Else
+            Exit('');
         //Email.OpenInEditorModally(_EmailMessage, Enum::"Email Scenario"::"Customer Statement");
+    end;
+
+    [TryFunction]
+    local procedure SendSafe(EmailMessage: Codeunit "Email Message")
+    var
+        Email: Codeunit Email;
+    begin
+        Email.Send(EmailMessage, Enum::"Email Scenario"::"Customer Statement");
     end;
 }

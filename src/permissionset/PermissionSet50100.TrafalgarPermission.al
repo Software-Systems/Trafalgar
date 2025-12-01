@@ -35,7 +35,6 @@ permissionset 50100 "Trafalgar_Permission"
         codeunit EmailNotify_PostedInvoice = X,
         codeunit "Ext for Production Subscriber" = X,
         codeunit "Extention for Purch Subscriber" = X,
-        codeunit "Extention for Sales Subscriber" = X,
         codeunit SendCustomerStatements = X,
         codeunit SendVendorRemittance = X,
         codeunit "Trafalgar General Codeunit" = X,
@@ -49,5 +48,8 @@ permissionset 50100 "Trafalgar_Permission"
         page "Sales Payments" = X,
         page "TG Sales Order Details" = X,
         page "TG Packed Orders" = X,
-        page "TG User Task Lines" = X;
+        page "TG User Task Lines" = X,
+        codeunit "Extention for Sales Subscriber" = X,
+        codeunit "Trafalgar Send Reminder" = X,
+        codeunit "Trafalgar Sharepoint Codeunit" = X;
 }

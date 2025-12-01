@@ -253,7 +253,7 @@ codeunit 50101 "Extention for Sales Subscriber"
 
             if RemainingCreditLimit < SalesHeader."Amount Including VAT" then
                 if TrafalgarGeneralCodeunit.GetMySession() = '_SALES' then
-                    Error('%1 %2 ($%3) is exceeding Customer Remaining Credit Limit (%4). You are not allowed to Release Sales %2.',
+                    Error('%1 %2 ($%3) is exceeding Customer Remaining Credit Limit ($%4). You are not allowed to Release Sales %2.',
                     SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Amount Including VAT", RemainingCreditLimit);
 
             if OverDueBalance > 0 then begin

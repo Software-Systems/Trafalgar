@@ -39,6 +39,14 @@ tableextension 50018 TabExtCustomer extends Customer
         {
             DataClassification = CustomerContent;
         }
+        field(51010; "Statement Last Sent Date"; Date)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(51020; "Statement Error Message"; Text[250])
+        {
+            DataClassification = CustomerContent;
+        }
         field(53010; "No. of Ongoing Quotes"; Integer)
         {
             CalcFormula = count("Sales Header" where(
